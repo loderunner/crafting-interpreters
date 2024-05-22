@@ -1,3 +1,11 @@
 {
-  "eslint.workingDirectories": ["jslox"]
+  "eslint.workingDirectories": ["jslox"],
+  "C_Cpp.default.cStandard": "c17",
+  "files.associations": {
+    "*.css": "css",
+    "stdio.h": "c",
+    "stringlist.h": "c",
+    "stdlib.h": "c",
+    "string.h": "c"
+  }
 }

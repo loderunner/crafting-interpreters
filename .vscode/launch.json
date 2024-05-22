@@ -5,6 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug clox",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/clox/clox",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/clox",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "Make clox"
+    },
+    {
       "name": "Debug JSLox",
       "request": "launch",
       "runtimeArgs": ["run", "jslox", "--", "--inspect"],

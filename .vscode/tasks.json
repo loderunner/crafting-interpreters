@@ -1,0 +1,32 @@
+{
+  "tasks": [
+    {
+      "type": "process",
+      "label": "Make clox",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "command": "/usr/bin/make",
+      "options": {
+        "cwd": "${workspaceFolder}/clox",
+        "env": {
+          "CFLAGS": "-fcolor-diagnostics -fansi-escape-codes -g"
+        }
+      },
+      "problemMatcher": {
+        "base": "$gcc",
+        "fileLocation": ["relative", "${workspaceFolder}/clox"]
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ],
+  "version": "2.0.0"
+}
