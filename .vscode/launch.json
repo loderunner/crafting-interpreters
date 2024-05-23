@@ -18,6 +18,23 @@
       "preLaunchTask": "Make clox"
     },
     {
+      "name": "Debug clox tests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/clox/tests/check",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/clox",
+      "environment": [
+        { "name": "CK_FORK", "value": "no" }
+        // { "name": "CK_RUN_SUITE", "value": "" },
+        // { "name": "CK_RUN_CASE", "value": "" }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "Make check"
+    },
+    {
       "name": "Debug JSLox",
       "request": "launch",
       "runtimeArgs": ["run", "jslox", "--", "--inspect"],

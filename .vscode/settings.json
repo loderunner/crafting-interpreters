@@ -1,11 +1,12 @@
 {
   "eslint.workingDirectories": ["jslox"],
   "C_Cpp.default.cStandard": "c17",
-  "files.associations": {
-    "*.css": "css",
-    "stdio.h": "c",
-    "stringlist.h": "c",
-    "stdlib.h": "c",
-    "string.h": "c"
+  "C_Cpp.clang_format_style": "file:${workspaceFolder}/clox/.clang-format",
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
+  },
+  "[c]": {
+    "files.insertFinalNewline": true
   }
 }

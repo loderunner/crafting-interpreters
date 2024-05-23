@@ -1,13 +1,13 @@
 {
   "tasks": [
     {
-      "type": "process",
+      "type": "shell",
       "label": "Make clox",
       "presentation": {
         "echo": true,
         "reveal": "silent",
         "focus": false,
-        "panel": "shared",
+        "panel": "dedicated",
         "showReuseMessage": true,
         "clear": true
       },
@@ -25,6 +25,34 @@
       "group": {
         "kind": "build",
         "isDefault": true
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Make check",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "command": "/usr/bin/make",
+      "args": ["tests/check"],
+      "options": {
+        "cwd": "${workspaceFolder}/clox",
+        "env": {
+          "CFLAGS": "-fcolor-diagnostics -fansi-escape-codes -g"
+        }
+      },
+      "problemMatcher": {
+        "base": "$gcc",
+        "fileLocation": ["relative", "${workspaceFolder}/clox"]
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
       }
     }
   ],
