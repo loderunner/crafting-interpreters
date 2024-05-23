@@ -20,6 +20,7 @@ WARNINGS := -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-align \
 			-Wnested-externs -Winline -Wuninitialized -Wconversion \
 			-Wstrict-prototypes -Werror
 CFLAGS := -std=c17 $(WARNINGS) $(CFLAGS)
+TESTCFLAGS := -DDMALLOC -DDMALLOC_FUNC_CHECK $(CFLAGS)
 
 .PHONY: clean
 
@@ -37,10 +38,10 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile $(BUILDDIR)
 	@$(CC) $(CFLAGS) -I$(INCLUDEDIR) -c -o $@ $<
 
 $(TESTDIR)/%.o: $(TESTDIR)/%.c Makefile
-	@$(CC) $(CFLAGS) -I$(INCLUDEDIR) -I$(TESTDIR) -c -o $@ $<
+	@$(CC) $(TESTCFLAGS) -I$(INCLUDEDIR) -I$(TESTDIR) -c -o $@ $<
 
 $(CHECK): $(TESTOBJFILES) $(OBJFILES)
-	@$(CC) $(LDFLAGS) -lcheck -o $@ $(TESTOBJFILES) $(OBJFILES)
+	@$(CC) $(LDFLAGS) -lcheck -ldmalloc -o $@ $(TESTOBJFILES) $(OBJFILES)
 
 check: $(CHECK)
 	@./tests/check

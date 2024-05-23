@@ -1,6 +1,7 @@
-#include <check.h>
 #include <stdlib.h>
 
+#include "check.h"
+#include "dmalloc.h"
 #include "strlist.h"
 
 START_TEST(test_strlist_new) {
@@ -11,6 +12,13 @@ START_TEST(test_strlist_new) {
   ck_assert_str_eq(l->str, "Hello World!");
   ck_assert_ptr_null(l->next);
   ck_assert_ptr_null(l->prev);
+
+  size_t sz;
+  ck_assert_int_eq(dmalloc_examine(l, &sz, 0, 0, 0, 0, 0, 0), DMALLOC_NOERROR);
+  ck_assert_uint_eq(sz, sizeof(strlist));
+
+  strlist_free(l, 0);
+  ck_assert_int_eq(dmalloc_examine(l, 0, 0, 0, 0, 0, 0, 0), DMALLOC_ERROR);
 }
 END_TEST
 

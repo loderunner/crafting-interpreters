@@ -54,3 +54,4 @@ dkms.conf
 # Build products
 build/
 clox
+tests/check
