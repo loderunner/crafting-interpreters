@@ -1,62 +1,103 @@
 #include "strlist.h"
+
 #include <stdlib.h>
+#include <string.h>
 
-strlist *strlist_new(const char *str) {
+typedef struct strlist_node strlist_node;
+struct strlist_node {
+  char *str;
+  strlist_node *prev;
+  strlist_node *next;
+};
+
+strlist *strlist_new(void) {
   strlist *l = malloc(sizeof(strlist));
-  l->str = str;
-  l->prev = 0;
-  l->next = 0;
-
+  *l = 0;
   return l;
 }
 
-void strlist_free(strlist *l, int free_all) {
-  if (!free_all) {
-    free(l);
-    return;
-  }
-
-  while (l != 0) {
-    strlist *next = l->next;
-    free(l);
-    l = next;
-  }
-}
-
-void strlist_insert(strlist *l, strlist *item, int insert_all) {
-  strlist *end = item;
-  if (insert_all) {
-    while (end->next != 0) {
-      end = end->next;
+void strlist_free(strlist *l) {
+  if (*l != 0) {
+    strlist_node *n = *l;
+    while (n != 0) {
+      strlist_node *next = n->next;
+      free(n->str);
+      free(n);
+      n = next;
     }
   }
 
-  item->prev = l;
-  end->next = l->next;
-
-  if (l->next != 0) {
-    l->next->prev = end;
-  }
-  l->next = item;
+  free(l);
 }
 
-void strlist_remove(strlist *l, int remove_all) {
-  if (remove_all) {
-    if (l->prev != 0) {
-      l->prev->next = 0;
-      l->prev = 0;
-    }
+int strlist_len(strlist *l) {
+  if (*l == 0) {
+    return 0;
+  }
+
+  int i;
+  strlist_node *n = *l;
+  for (i = 0; n != 0; i++) {
+    n = n->next;
+  }
+
+  return i;
+}
+
+const char *strlist_get(strlist *l, int index) {
+  int i;
+  strlist_node *n = *l;
+  for (i = 0; i < index; i++) {
+    n = n->next;
+  }
+
+  return n->str;
+}
+
+void strlist_insert(strlist *l, int index, const char *str) {
+  if (*l == 0) {
+    strlist_node *item = malloc(sizeof(strlist_node));
+
+    size_t len = strlen(str) + 1;
+    item->str = malloc(sizeof(char) * len);
+    strncpy(item->str, str, len);
+
+    item->prev = 0;
+    item->next = 0;
+
+    *l = item;
+
     return;
   }
 
-  if (l->prev != 0) {
-    l->prev->next = l->next;
+  int i;
+  strlist_node *n = *l;
+  for (i = 0; i < index - 1; i++) {
+    n = n->next;
   }
 
-  if (l->next != 0) {
-    l->next->prev = l->prev;
+  strlist_node *item = malloc(sizeof(strlist_node));
+
+  size_t len = (strlen(str) + 1);
+  item->str = malloc(sizeof(char) * len);
+  strncpy(item->str, str, len);
+
+  item->prev = n;
+  item->next = n->next;
+  n->next = item;
+  n->next->prev = item;
+}
+
+void strlist_remove(strlist *l, int index) {
+  int i;
+  strlist_node *n = *l;
+  for (i = 0; i < index; i++) {
+    n = n->next;
   }
 
-  l->next = 0;
-  l->prev = 0;
+  n->next->prev = n->prev;
+  n->prev->next = n->next;
+
+  free(n->str);
+  free(n);
 }

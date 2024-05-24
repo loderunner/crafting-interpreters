@@ -36,7 +36,7 @@
         "focus": false,
         "panel": "dedicated",
         "showReuseMessage": true,
-        "clear": false
+        "clear": true
       },
       "command": "/usr/bin/make",
       "args": ["tests/check"],
@@ -52,6 +52,27 @@
       },
       "group": {
         "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Make clean",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "command": "/usr/bin/make",
+      "args": ["clean"],
+      "options": {
+        "cwd": "${workspaceFolder}/clox"
+      },
+      "group": {
+        "kind": "build",
         "isDefault": false
       }
     }

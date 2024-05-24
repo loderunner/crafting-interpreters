@@ -38,7 +38,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile $(BUILDDIR)
 	@$(CC) $(CFLAGS) -I$(INCLUDEDIR) -c -o $@ $<
 
 $(TESTDIR)/%.o: $(TESTDIR)/%.c Makefile
-	@$(CC) $(TESTCFLAGS) -I$(INCLUDEDIR) -I$(TESTDIR) -c -o $@ $<
+	@$(CC) $(TESTCFLAGS) -I$(INCLUDEDIR) -c -o $@ $<
 
 $(CHECK): $(TESTOBJFILES) $(OBJFILES)
 	@$(CC) $(LDFLAGS) -lcheck -ldmalloc -o $@ $(TESTOBJFILES) $(OBJFILES)

@@ -2,26 +2,22 @@
 
 #include "strlist.h"
 
-void print_list(strlist *l) {
-  printf("%s", l->str);
-  while (l->next != 0) {
-    printf(" ");
-    l = l->next;
-    printf("%s", l->str);
+void print_list(strlist* l) {
+  int len = strlist_len(l);
+  for (int i = 0; i < len; i++) {
+    printf("%s\n", strlist_get(l, i));
   }
-  printf("\n");
 }
 
 int main(void) {
-  strlist *hello = strlist_new("Hello");
+  strlist* l = strlist_new();
+  strlist_insert(l, 0, "Hello");
+  strlist_insert(l, 1, "World");
+  strlist_insert(l, 2, "!");
 
-  strlist *world = strlist_new("World");
-  strlist_insert(hello, world, 0);
+  print_list(l);
 
-  strlist *exclamatation_mark = strlist_new("!");
-  strlist_insert(world, exclamatation_mark, 0);
-
-  print_list(hello);
+  strlist_free(l);
 
   return 0;
 }

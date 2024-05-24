@@ -1,17 +1,13 @@
 #ifndef STRLIST_H
 #define STRLIST_H
 
-typedef struct strlist strlist;
+typedef struct strlist_node *strlist;
 
-struct strlist {
-  const char *str;
-  strlist *next;
-  strlist *prev;
-};
-
-strlist *strlist_new(const char *str);
-void strlist_free(strlist *l, int free_all);
-void strlist_insert(strlist *l, strlist *item, int insert_all);
-void strlist_remove(strlist *l, int remove_all);
+strlist *strlist_new(void);
+void strlist_free(strlist *l);
+int strlist_len(strlist *l);
+const char *strlist_get(strlist *l, int index);
+void strlist_insert(strlist *l, int index, const char *str);
+void strlist_remove(strlist *l, int index);
 
 #endif
