@@ -30,12 +30,12 @@ void strlist_free(strlist *l) {
   free(l);
 }
 
-int strlist_len(strlist *l) {
+unsigned int strlist_len(strlist *l) {
   if (*l == 0) {
     return 0;
   }
 
-  int i;
+  unsigned int i;
   strlist_node *n = *l;
   for (i = 0; n != 0; i++) {
     n = n->next;
@@ -55,15 +55,15 @@ const char *strlist_get(strlist *l, int index) {
 }
 
 void strlist_insert(strlist *l, int index, const char *str) {
-  if (*l == 0) {
-    strlist_node *item = malloc(sizeof(strlist_node));
+  strlist_node *item = malloc(sizeof(strlist_node));
 
-    size_t len = strlen(str) + 1;
-    item->str = malloc(sizeof(char) * len);
-    strncpy(item->str, str, len);
+  size_t len = strlen(str) + 1;
+  item->str = malloc(sizeof(char) * len);
+  strncpy(item->str, str, len);
 
+  if (index == 0) {
     item->prev = 0;
-    item->next = 0;
+    item->next = *l;
 
     *l = item;
 
@@ -71,33 +71,53 @@ void strlist_insert(strlist *l, int index, const char *str) {
   }
 
   int i;
-  strlist_node *n = *l;
-  for (i = 0; i < index - 1; i++) {
-    n = n->next;
+  strlist_node *before = *l;
+  for (i = 1; i < index; i++) {
+    before = before->next;
   }
 
-  strlist_node *item = malloc(sizeof(strlist_node));
+  strlist_node *after = before->next;
 
-  size_t len = (strlen(str) + 1);
-  item->str = malloc(sizeof(char) * len);
-  strncpy(item->str, str, len);
+  item->prev = before;
+  item->next = after;
 
-  item->prev = n;
-  item->next = n->next;
-  n->next = item;
-  n->next->prev = item;
+  before->next = item;
+  if (after != 0) {
+    after->prev = item;
+  }
 }
 
 void strlist_remove(strlist *l, int index) {
-  int i;
-  strlist_node *n = *l;
-  for (i = 0; i < index; i++) {
-    n = n->next;
+  if (index == 0) {
+    strlist_node *n = *l;
+
+    *l = n->next;
+    if ((*l) != 0) {
+      (*l)->prev = 0;
+    }
+
+    free(n->str);
+    free(n);
+
+    return;
   }
 
-  n->next->prev = n->prev;
-  n->prev->next = n->next;
+  int i;
+  strlist_node *item = *l;
+  for (i = 0; i < index; i++) {
+    item = item->next;
+  }
 
-  free(n->str);
-  free(n);
+  strlist_node *before = item->prev;
+  strlist_node *after = item->next;
+
+  if (before != 0) {
+    before->next = after;
+  }
+  if (after != 0) {
+    after->prev = before;
+  }
+
+  free(item->str);
+  free(item);
 }
