@@ -37,12 +37,16 @@
     {
       "name": "Debug JSLox",
       "request": "launch",
-      "runtimeArgs": ["run", "jslox", "--", "--inspect"],
+      "runtimeArgs": ["start"],
       "runtimeExecutable": "npm",
       "skipFiles": ["<node_internals>/**"],
       "runtimeVersion": "20.11.1",
       "type": "node",
-      "cwd": "${workspaceFolder}/jslox"
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/jslox",
+      "env": {
+        "NODE_OPTIONS": "--inspect"
+      }
     }
   ]
 }

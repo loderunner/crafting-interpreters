@@ -3,13 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "jslox": "SWCRC=true node --import @swc-node/register/esm-register --enable-source-maps src/index.ts"
+    "start": "SWCRC=true node --import @swc-node/register/esm-register --enable-source-maps src/index.ts",
+    "build": "tsc"
+  },
+  "bin": {
+    "jslox": "build/index.js"
   },
   "type": "module",
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
     "@swc-node/register": "^1.9.1",
+    "@swc/cli": "^0.3.12",
+    "@swc/core": "^1.5.7",
     "@types/node": "^20.12.12",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",

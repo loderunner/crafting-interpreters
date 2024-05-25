@@ -1,6 +1,5 @@
 {
-  "$schema": "https://swc.rs/schema.json",
-  "sourceMaps": "inline",
+  "sourceMaps": true,
   "module": {
     "type": "nodenext"
   },

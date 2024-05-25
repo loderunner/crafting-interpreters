@@ -1,0 +1,16 @@
+export const OK = 0; /* successful termination */
+export const USAGE = 64; /* command line usage error */
+export const DATAERR = 65; /* data format error */
+export const NOINPUT = 66; /* cannot open input */
+export const NOUSER = 67; /* addressee unknown */
+export const NOHOST = 68; /* host name unknown */
+export const UNAVAILABLE = 69; /* service unavailable */
+export const SOFTWARE = 70; /* internal software error */
+export const OSERR = 71; /* system error (e.g., can't fork) */
+export const OSFILE = 72; /* critical OS file missing */
+export const CANTCREAT = 73; /* can't create (user) output file */
+export const IOERR = 74; /* input/output error */
+export const TEMPFAIL = 75; /* temp failure; user is invited to retry */
+export const PROTOCOL = 76; /* remote error in protocol */
+export const NOPERM = 77; /* permission denied */
+export const CONFIG = 78; /* configuration error */

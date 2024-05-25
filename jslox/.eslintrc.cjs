@@ -10,4 +10,21 @@ module.exports = {
   ],
   ignorePatterns: ['.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        args: 'all',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
+    'n/hashbang': 'off',
+    'n/no-process-exit': 'off',
+    'n/no-unsupported-features/node-builtins': 'off',
+  },
 };
