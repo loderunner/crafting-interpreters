@@ -1,10 +1,10 @@
 import Token, { Literal } from './token.js';
 
 export interface Visitor<R> {
-  visitBinary(binary: BinaryExpr): R;
-  visitGrouping(grouping: GroupingExpr): R;
-  visitLiteral(literal: LiteralExpr): R;
-  visitUnary(unary: UnaryExpr): R;
+  visitBinary(expr: BinaryExpr): R;
+  visitGrouping(expr: GroupingExpr): R;
+  visitLiteral(expr: LiteralExpr): R;
+  visitUnary(expr: UnaryExpr): R;
 };
 
 export abstract class Expr {

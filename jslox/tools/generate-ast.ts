@@ -46,7 +46,7 @@ async function generateVisitor(names: string[]) {
   await file.write('export interface Visitor<R> {\n');
   for (const name of names) {
     await file.write(
-      `  visit${name}(${name.toLowerCase()}: ${name}${baseClass}): R;\n`,
+      `  visit${name}(${baseClass.toLowerCase()}: ${name}${baseClass}): R;\n`,
     );
   }
   await file.write('};\n');
