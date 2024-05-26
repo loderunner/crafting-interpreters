@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "SWCRC=true node --import @swc-node/register/esm-register --enable-source-maps src/index.ts",
-    "build": "tsc"
+    "start": "SWCRC=true node --import @swc-node/register/esm-register src/index.ts",
+    "build": "tsc",
+    "generate-ast": "SWRC=true node --import @swc-node/register/esm-register tools/generate-ast.ts"
   },
   "bin": {
     "jslox": "build/index.js"

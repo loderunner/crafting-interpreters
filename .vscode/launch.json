@@ -47,6 +47,19 @@
       "env": {
         "NODE_OPTIONS": "--inspect"
       }
+    },
+    {
+      "name": "Generate AST",
+      "request": "launch",
+      "runtimeArgs": ["run", "generate-ast", "--", "src"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeVersion": "20.11.1",
+      "type": "node",
+      "cwd": "${workspaceFolder}/jslox",
+      "env": {
+        "NODE_OPTIONS": "--inspect"
+      }
     }
   ]
 }
