@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 import process from 'node:process';
-import { USAGE } from './sysexits.js';
+import { DATAERR, USAGE } from './sysexits.js';
 import fs from 'node:fs/promises';
 import readline from 'node:readline/promises';
+import Scanner from './scanner.js';
 
 const args = process.argv.slice(2);
 
@@ -15,9 +16,15 @@ if (args.length > 1) {
   runPrompt();
 }
 
+let hadError = false;
+
 async function runFile(file: string) {
   const buf = await fs.readFile(file);
   run(buf.toString('utf-8'));
+
+  if (hadError) {
+    process.exit(DATAERR);
+  }
 }
 
 async function runPrompt() {
@@ -32,9 +39,24 @@ async function runPrompt() {
       return;
     }
     run(answer);
+    hadError = false;
   }
 }
 
-function run(program: string) {
-  console.log(program);
+function run(source: string) {
+  const scanner = new Scanner(source);
+  const tokens = scanner.scanTokens();
+
+  for (const tok of tokens) {
+    console.log(`${tok}`);
+  }
+}
+
+export function error(line: number, message: string) {
+  report(line, '', message);
+}
+
+function report(line: number, where: string, message: string) {
+  console.error(`[line ${line}] Error ${where}: ${message}`);
+  hadError = true;
 }
