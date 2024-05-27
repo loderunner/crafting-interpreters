@@ -49,7 +49,7 @@ export enum TokenType {
   EOF,
 }
 
-export type Literal = string | number | null;
+export type Literal = string | number | boolean | null;
 
 export default class Token {
   constructor(

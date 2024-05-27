@@ -4,6 +4,9 @@ import { DATAERR, USAGE } from './sysexits.js';
 import fs from 'node:fs/promises';
 import readline from 'node:readline/promises';
 import Scanner from './scanner.js';
+import Token, { TokenType } from './token.js';
+import Parser from './parser.js';
+import ASTPrinter from './ast-printer.js';
 
 const args = process.argv.slice(2);
 
@@ -47,13 +50,33 @@ function run(source: string) {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
-  for (const tok of tokens) {
-    console.log(`${tok}`);
+  const parser = new Parser(tokens);
+  const expr = parser.parse();
+
+  if (hadError) {
+    return;
+  }
+
+  if (expr !== undefined) {
+    console.log(new ASTPrinter().print(expr));
   }
 }
 
-export function error(line: number, message: string) {
-  report(line, '', message);
+export function error(line: number, message: string): void;
+export function error(token: Token, message: string): void;
+export function error(lineOrToken: number | Token, message: string): void {
+  if (typeof lineOrToken === 'number') {
+    const line = lineOrToken;
+    report(line, '', message);
+    return;
+  }
+
+  const token = lineOrToken;
+  if (token.tokenType == TokenType.EOF) {
+    report(token.line, ' at end', message);
+  } else {
+    report(token.line, " at '" + token.lexeme + "'", message);
+  }
 }
 
 function report(line: number, where: string, message: string) {

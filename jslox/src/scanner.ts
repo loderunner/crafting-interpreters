@@ -2,7 +2,7 @@ import { error } from './index.js';
 import Token, { Literal, TokenType } from './token.js';
 
 export default class Scanner {
-  private readonly tokens: Token[] = [];
+  private tokens: Token[] = [];
   private start = 0;
   private current = 0;
   private line = 1;
@@ -13,7 +13,7 @@ export default class Scanner {
     return this.current >= this.source.length;
   }
 
-  scanTokens(): readonly Token[] {
+  scanTokens(): ReadonlyArray<Readonly<Token>> {
     while (!this.eof) {
       this.start = this.current;
       this.scanToken();
