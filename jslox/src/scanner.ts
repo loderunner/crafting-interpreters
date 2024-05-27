@@ -58,20 +58,20 @@ export default class Scanner {
         this.addToken(TokenType.STAR);
         break;
       case '!':
-        this.addToken(this.match('=') ? TokenType.BANG : TokenType.BANG_EQUAL);
+        this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
         break;
       case '=':
         this.addToken(
-          this.match('=') ? TokenType.EQUAL : TokenType.EQUAL_EQUAL,
+          this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL,
         );
         break;
       case '>':
         this.addToken(
-          this.match('=') ? TokenType.GREATER : TokenType.GREATER_EQUAL,
+          this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
         );
         break;
       case '<':
-        this.addToken(this.match('=') ? TokenType.LESS : TokenType.LESS_EQUAL);
+        this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
         break;
       case '/':
         if (this.match('/')) {
