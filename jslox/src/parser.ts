@@ -10,6 +10,10 @@ import Token, { TokenType } from './token.js';
 
 export class ParseError extends Error {}
 
+function createError(token: Token, message: string) {
+  error(token, message);
+  return new ParseError();
+}
 export default class Parser {
   private current = 0;
   constructor(private tokens: ReadonlyArray<Readonly<Token>>) {}
@@ -108,7 +112,7 @@ export default class Parser {
       return new GroupingExpr(expr);
     }
 
-    throw this.error(this.peek(), 'Expected expression');
+    throw createError(this.peek(), 'Expected expression');
   }
 
   private match(...tokenTypes: TokenType[]) {
@@ -147,12 +151,7 @@ export default class Parser {
       return this.advance();
     }
 
-    throw this.error(this.peek(), message);
-  }
-
-  private error(token: Token, message: string) {
-    error(token, message);
-    return new ParseError();
+    throw createError(this.peek(), message);
   }
 
   private synchronize() {
