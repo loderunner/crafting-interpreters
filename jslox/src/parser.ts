@@ -112,21 +112,19 @@ export default class Parser {
   }
 
   private match(...tokenTypes: TokenType[]) {
-    for (const t of tokenTypes) {
-      if (this.check(t)) {
-        this.advance();
-        return true;
-      }
+    if (this.check(...tokenTypes)) {
+      this.advance();
+      return true;
     }
 
     return false;
   }
 
-  private check(tokenType: TokenType): boolean {
+  private check(...tokenTypes: TokenType[]): boolean {
     if (this.eof) {
       return false;
     }
-    return this.peek().tokenType === tokenType;
+    return tokenTypes.includes(this.peek().tokenType);
   }
 
   private advance(): Token {
