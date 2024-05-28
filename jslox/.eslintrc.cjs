@@ -11,6 +11,7 @@ module.exports = {
   ignorePatterns: ['.eslintrc.cjs', 'src/expr.ts'],
   parser: '@typescript-eslint/parser',
   rules: {
+    'no-unsafe-finally': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
