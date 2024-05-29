@@ -8,11 +8,19 @@ import {
 import { error } from './index.js';
 import Token, { TokenType } from './token.js';
 
-export class ParseError extends Error {}
+class ParseError extends Error {
+  constructor(
+    public readonly token: Readonly<Token>,
+    message: string,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+  }
+}
 
 function createError(token: Token, message: string) {
   error(token, message);
-  return new ParseError();
+  return new ParseError(token, message);
 }
 export default class Parser {
   private current = 0;

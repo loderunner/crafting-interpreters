@@ -1,32 +1,40 @@
 #! /usr/bin/env node
 import process from 'node:process';
-import { DATAERR, USAGE } from './sysexits.js';
+import * as sysexits from './sysexits.js';
 import fs from 'node:fs/promises';
 import readline from 'node:readline/promises';
 import Scanner from './scanner.js';
 import Token, { TokenType } from './token.js';
 import Parser from './parser.js';
-import ASTPrinter from './ast-printer.js';
+import { Interpreter, RuntimeError } from './interpreter.js';
 
-const args = process.argv.slice(2);
-
-if (args.length > 1) {
-  console.log(`Usage: jslox [script]`);
-  process.exit(USAGE);
-} else if (args.length == 1) {
-  runFile(args[0]);
-} else {
-  runPrompt();
-}
+const interpreter = new Interpreter();
 
 let hadError = false;
+let hadRuntimeError = false;
+
+function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length > 1) {
+    console.log(`Usage: jslox [script]`);
+    process.exit(sysexits.USAGE);
+  } else if (args.length == 1) {
+    runFile(args[0]);
+  } else {
+    runPrompt();
+  }
+}
 
 async function runFile(file: string) {
   const buf = await fs.readFile(file);
   run(buf.toString('utf-8'));
 
   if (hadError) {
-    process.exit(DATAERR);
+    process.exit(sysexits.DATAERR);
+  }
+  if (hadRuntimeError) {
+    process.exit(sysexits.SOFTWARE);
   }
 }
 
@@ -43,6 +51,7 @@ async function runPrompt() {
     }
     run(answer);
     hadError = false;
+    hadRuntimeError = false;
   }
 }
 
@@ -53,13 +62,11 @@ function run(source: string) {
   const parser = new Parser(tokens);
   const expr = parser.parse();
 
-  if (hadError) {
+  if (hadError || expr === undefined) {
     return;
   }
 
-  if (expr !== undefined) {
-    console.log(new ASTPrinter().print(expr));
-  }
+  interpreter.interpret(expr);
 }
 
 export function error(line: number, message: string): void;
@@ -83,3 +90,10 @@ function report(line: number, where: string, message: string) {
   console.error(`[line ${line}] Error ${where}: ${message}`);
   hadError = true;
 }
+
+export function runtimeError(err: RuntimeError) {
+  console.error(`[line ${err.token.line}] ${err.message}`);
+  hadRuntimeError = true;
+}
+
+main();
