@@ -56,6 +56,9 @@ export class Interpreter implements Visitor<Value> {
         throw new RuntimeError(expr.op, 'Operands must be two numbers.');
       case TokenType.SLASH:
         if (typeof left === 'number' && typeof right === 'number') {
+          if (right === 0) {
+            throw new RuntimeError(expr.op, 'Cannot divide by 0.');
+          }
           return left / right;
         }
         throw new RuntimeError(expr.op, 'Operands must be two numbers.');
