@@ -3,14 +3,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { USAGE } from '../src/sysexits.js';
 
-const baseClass = 'Expr';
-const types = [
-  'Binary   -> op: Token, left: Expr, right: Expr',
-  'Grouping -> expr: Expr',
-  'Literal  -> value: Literal',
-  'Unary    -> op: Token, right: Expr',
-];
-
 const args = process.argv.slice(2);
 
 if (args.length != 1) {
@@ -19,18 +11,41 @@ if (args.length != 1) {
 }
 
 const outDir = path.resolve(args[0]);
-const file = await fs.open(`${outDir}/expr.ts`, 'w');
 
-await generateAST();
+const exprBaseClass = 'Expr';
+const exprRules = [
+  'Binary   -> op: Token, left: Expr, right: Expr',
+  'Grouping -> expr: Expr',
+  'Literal  -> value: Literal',
+  'Unary    -> op: Token, right: Expr',
+];
+const exprImports = ["import Token, { Literal } from './token.js'"];
+const exprFile = await fs.open(`${outDir}/expr.ts`, 'w');
+await generateAST(exprFile, exprImports, exprBaseClass, exprRules);
+await exprFile.close();
 
-async function generateAST() {
-  const pairs = types.map((t) => t.split('->').map((r) => r.trim()));
+const stmtBaseClass = 'Stmt';
+const stmtRules = ['Expr  -> expression: Expr', 'Print -> expression: Expr'];
+const stmtFile = await fs.open(`${outDir}/stmt.ts`, 'w');
+const stmtImports = ["import { Expr } from './expr.js'"];
+await generateAST(stmtFile, stmtImports, stmtBaseClass, stmtRules);
+await exprFile.close();
+
+async function generateAST(
+  file: fs.FileHandle,
+  imports: string[],
+  baseClass: string,
+  rules: string[],
+) {
+  const pairs = rules.map((t) => t.split('->').map((r) => r.trim()));
   const names = pairs.map(([name]) => name);
 
-  await file.write("import Token, { Literal } from './token.js';\n");
+  for (const imp of imports) {
+    await file.write(`${imp};\n`);
+  }
   await file.write('\n');
 
-  await generateVisitor(names);
+  await generateVisitor(file, baseClass, names);
 
   await file.write(`export abstract class ${baseClass} {\n`);
   await file.write('  abstract accept<R>(visitor: Visitor<R>): R;\n');
@@ -38,11 +53,15 @@ async function generateAST() {
   await file.write('\n');
 
   for (const [name, fields] of pairs) {
-    await generateType(name, fields);
+    await generateType(file, baseClass, name, fields);
   }
 }
 
-async function generateVisitor(names: string[]) {
+async function generateVisitor(
+  file: fs.FileHandle,
+  baseClass: string,
+  names: string[],
+) {
   await file.write('export interface Visitor<R> {\n');
   for (const name of names) {
     await file.write(
@@ -53,7 +72,12 @@ async function generateVisitor(names: string[]) {
   await file.write('\n');
 }
 
-async function generateType(name: string, fields: string) {
+async function generateType(
+  file: fs.FileHandle,
+  baseClass: string,
+  name: string,
+  fields: string,
+) {
   await file.write(`export class ${name}${baseClass} extends ${baseClass} {\n`);
 
   await file.write('  constructor(\n');
