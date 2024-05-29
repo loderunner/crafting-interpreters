@@ -25,7 +25,7 @@ await generateAST(exprFile, exprImports, exprBaseClass, exprRules);
 await exprFile.close();
 
 const stmtBaseClass = 'Stmt';
-const stmtRules = ['Expr  -> expression: Expr', 'Print -> expression: Expr'];
+const stmtRules = ['Expression -> expr: Expr', 'Print      -> expr: Expr'];
 const stmtFile = await fs.open(`${outDir}/stmt.ts`, 'w');
 const stmtImports = ["import { Expr } from './expr.js'"];
 await generateAST(stmtFile, stmtImports, stmtBaseClass, stmtRules);
@@ -48,7 +48,9 @@ async function generateAST(
   await generateVisitor(file, baseClass, names);
 
   await file.write(`export abstract class ${baseClass} {\n`);
-  await file.write('  abstract accept<R>(visitor: Visitor<R>): R;\n');
+  await file.write(
+    `  abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;\n`,
+  );
   await file.write('}\n');
   await file.write('\n');
 
@@ -62,7 +64,7 @@ async function generateVisitor(
   baseClass: string,
   names: string[],
 ) {
-  await file.write('export interface Visitor<R> {\n');
+  await file.write(`export interface ${baseClass}Visitor<R> {\n`);
   for (const name of names) {
     await file.write(
       `  visit${name}(${baseClass.toLowerCase()}: ${name}${baseClass}): R;\n`,
@@ -89,7 +91,7 @@ async function generateType(
   await file.write('  }\n');
   await file.write('\n');
 
-  await file.write('  accept<R>(visitor: Visitor<R>): R {\n');
+  await file.write(`  accept<R>(visitor: ${baseClass}Visitor<R>): R {\n`);
   await file.write(`    return visitor.visit${name}(this);\n`);
   await file.write('  }\n');
 

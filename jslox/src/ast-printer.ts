@@ -4,10 +4,10 @@ import {
   GroupingExpr,
   LiteralExpr,
   UnaryExpr,
-  Visitor,
+  ExprVisitor,
 } from './expr.js';
 
-export default class ASTPrinter implements Visitor<string> {
+export default class ASTPrinter implements ExprVisitor<string> {
   print(expr: Expr): string {
     return expr.accept(this);
   }

@@ -6,6 +6,7 @@ import {
   UnaryExpr,
 } from './expr.js';
 import { error } from './index.js';
+import { ExpressionStmt, PrintStmt, Stmt } from './stmt.js';
 import Token, { TokenType } from './token.js';
 
 class ParseError extends Error {
@@ -30,15 +31,39 @@ export default class Parser {
     return this.peek().tokenType === TokenType.EOF;
   }
 
-  parse(): Expr | undefined {
+  parse(): Stmt[] {
     try {
-      return this.parseExpression();
+      const stmts: Stmt[] = [];
+      while (!this.eof) {
+        const stmt = this.parseStatement();
+        stmts.push(stmt);
+      }
+      return stmts;
     } catch (err) {
       if (err instanceof ParseError) {
-        return;
+        return [];
       }
       throw err;
     }
+  }
+
+  private parseStatement(): Stmt {
+    if (this.match(TokenType.PRINT)) {
+      return this.parsePrintStatement();
+    }
+    return this.parseExpressionStatement();
+  }
+
+  private parsePrintStatement(): Stmt {
+    const expr = this.parseExpression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new PrintStmt(expr);
+  }
+
+  private parseExpressionStatement(): Stmt {
+    const expr = this.parseExpression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new ExpressionStmt(expr);
   }
 
   private parseExpression(): Expr {

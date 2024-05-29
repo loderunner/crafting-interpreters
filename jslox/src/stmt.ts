@@ -1,34 +1,34 @@
 import { Expr } from './expr.js';
 
-export interface Visitor<R> {
-  visitExpr(stmt: ExprStmt): R;
+export interface StmtVisitor<R> {
+  visitExpression(stmt: ExpressionStmt): R;
   visitPrint(stmt: PrintStmt): R;
 };
 
 export abstract class Stmt {
-  abstract accept<R>(visitor: Visitor<R>): R;
+  abstract accept<R>(visitor: StmtVisitor<R>): R;
 }
 
-export class ExprStmt extends Stmt {
+export class ExpressionStmt extends Stmt {
   constructor(
-    public readonly expression: Expr,
+    public readonly expr: Expr,
   ) {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitExpr(this);
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitExpression(this);
   }
 };
 
 export class PrintStmt extends Stmt {
   constructor(
-    public readonly expression: Expr,
+    public readonly expr: Expr,
   ) {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: StmtVisitor<R>): R {
     return visitor.visitPrint(this);
   }
 };

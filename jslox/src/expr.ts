@@ -1,6 +1,6 @@
 import Token, { Literal } from './token.js';
 
-export interface Visitor<R> {
+export interface ExprVisitor<R> {
   visitBinary(expr: BinaryExpr): R;
   visitGrouping(expr: GroupingExpr): R;
   visitLiteral(expr: LiteralExpr): R;
@@ -8,7 +8,7 @@ export interface Visitor<R> {
 };
 
 export abstract class Expr {
-  abstract accept<R>(visitor: Visitor<R>): R;
+  abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
 export class BinaryExpr extends Expr {
@@ -20,7 +20,7 @@ export class BinaryExpr extends Expr {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitBinary(this);
   }
 };
@@ -32,7 +32,7 @@ export class GroupingExpr extends Expr {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitGrouping(this);
   }
 };
@@ -44,7 +44,7 @@ export class LiteralExpr extends Expr {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitLiteral(this);
   }
 };
@@ -57,7 +57,7 @@ export class UnaryExpr extends Expr {
     super();
   }
 
-  accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitUnary(this);
   }
 };

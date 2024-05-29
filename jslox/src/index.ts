@@ -59,14 +59,18 @@ function run(source: string) {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
-  const parser = new Parser(tokens);
-  const expr = parser.parse();
-
-  if (hadError || expr === undefined) {
+  if (hadError) {
     return;
   }
 
-  interpreter.interpret(expr);
+  const parser = new Parser(tokens);
+  const stmts = parser.parse();
+
+  if (hadError) {
+    return;
+  }
+
+  interpreter.interpret(stmts);
 }
 
 export function error(line: number, message: string): void;
@@ -80,9 +84,9 @@ export function error(lineOrToken: number | Token, message: string): void {
 
   const token = lineOrToken;
   if (token.tokenType == TokenType.EOF) {
-    report(token.line, ' at end', message);
+    report(token.line, 'at end', message);
   } else {
-    report(token.line, " at '" + token.lexeme + "'", message);
+    report(token.line, "at '" + token.lexeme + "'", message);
   }
 }
 

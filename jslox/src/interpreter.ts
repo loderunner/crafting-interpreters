@@ -4,9 +4,10 @@ import {
   GroupingExpr,
   LiteralExpr,
   UnaryExpr,
-  Visitor,
+  ExprVisitor,
 } from './expr.js';
 import { runtimeError } from './index.js';
+import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor } from './stmt.js';
 import Token, { TokenType } from './token.js';
 
 export class RuntimeError extends Error {
@@ -31,11 +32,12 @@ export class InterpreterError extends Error {
 
 export type Value = null | boolean | number | string;
 
-export class Interpreter implements Visitor<Value> {
-  interpret(expr: Expr) {
+export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
+  interpret(stmts: Stmt[]) {
     try {
-      const value = expr.accept(this);
-      console.log(stringify(value));
+      for (const stmt of stmts) {
+        this.execute(stmt);
+      }
     } catch (err) {
       if (err instanceof RuntimeError) {
         runtimeError(err);
@@ -43,6 +45,23 @@ export class Interpreter implements Visitor<Value> {
       }
       throw err;
     }
+  }
+
+  private execute(stmt: Stmt): void {
+    stmt.accept(this);
+  }
+
+  visitExpression(stmt: ExpressionStmt): void {
+    this.evaluate(stmt.expr);
+  }
+
+  visitPrint(stmt: PrintStmt): void {
+    const value = this.evaluate(stmt.expr);
+    console.log(stringify(value));
+  }
+
+  private evaluate(expr: Expr): Value {
+    return expr.accept(this);
   }
 
   visitBinary(expr: BinaryExpr): Value {
@@ -135,10 +154,6 @@ export class Interpreter implements Visitor<Value> {
         );
     }
   }
-
-  private evaluate(expr: Expr): Value {
-    return expr.accept(this);
-  }
 }
 
 function isTruthy(value: Value): boolean {
@@ -164,5 +179,5 @@ function stringify(value: Value): string {
     return 'nil';
   }
 
-  return JSON.stringify(value);
+  return value.toString();
 }
