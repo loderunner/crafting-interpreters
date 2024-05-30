@@ -30,6 +30,7 @@ const stmtBaseClass = 'Stmt';
 const stmtRules = [
   'Block      -> stmts: Stmt[]',
   'Expression -> expr: Expr',
+  'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',
   'Print      -> expr: Expr',
   'Var        -> name: Token, initializer?: Expr',
 ];

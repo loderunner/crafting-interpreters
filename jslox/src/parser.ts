@@ -8,7 +8,14 @@ import {
   VariableExpr,
 } from './expr.js';
 import { error } from './index.js';
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from './stmt.js';
+import {
+  BlockStmt,
+  ExpressionStmt,
+  IfStmt,
+  PrintStmt,
+  Stmt,
+  VarStmt,
+} from './stmt.js';
 import { Token, TokenType } from './token.js';
 
 class ParseError extends Error {
@@ -76,13 +83,31 @@ export default class Parser {
   }
 
   private parseStatement(): Stmt {
+    if (this.match(TokenType.IF)) {
+      return this.parseIfStatement();
+    }
+
     if (this.match(TokenType.PRINT)) {
       return this.parsePrintStatement();
     }
+
     if (this.match(TokenType.LEFT_BRACE)) {
       return new BlockStmt(this.parseBlockStatement());
     }
     return this.parseExpressionStatement();
+  }
+
+  private parseIfStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    const cond = this.parseExpression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'if' condition.");
+    const thenBranch = this.parseStatement();
+
+    if (this.match(TokenType.ELSE)) {
+      return new IfStmt(cond, thenBranch, this.parseStatement());
+    }
+
+    return new IfStmt(cond, thenBranch);
   }
 
   private parsePrintStatement(): Stmt {

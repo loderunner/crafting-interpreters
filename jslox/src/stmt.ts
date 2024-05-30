@@ -4,6 +4,7 @@ import { Expr } from './expr.js';
 export interface StmtVisitor<R> {
   visitBlock(stmt: BlockStmt): R;
   visitExpression(stmt: ExpressionStmt): R;
+  visitIf(stmt: IfStmt): R;
   visitPrint(stmt: PrintStmt): R;
   visitVar(stmt: VarStmt): R;
 };
@@ -33,6 +34,20 @@ export class ExpressionStmt extends Stmt {
 
   accept<R>(visitor: StmtVisitor<R>): R {
     return visitor.visitExpression(this);
+  }
+};
+
+export class IfStmt extends Stmt {
+  constructor(
+    public readonly condition: Expr,
+    public readonly thenBranch: Stmt,
+    public readonly elseBranch?: Stmt,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitIf(this);
   }
 };
 

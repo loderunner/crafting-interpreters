@@ -13,6 +13,7 @@ import { runtimeError } from './index.js';
 import {
   BlockStmt,
   ExpressionStmt,
+  IfStmt,
   PrintStmt,
   Stmt,
   StmtVisitor,
@@ -65,6 +66,17 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitExpression(stmt: ExpressionStmt): void {
     this.evaluate(stmt.expr);
+  }
+
+  visitIf(stmt: IfStmt): void {
+    if (isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.thenBranch);
+      return;
+    }
+
+    if (stmt.elseBranch !== undefined) {
+      this.execute(stmt.elseBranch);
+    }
   }
 
   visitBlock(stmt: BlockStmt): void {
