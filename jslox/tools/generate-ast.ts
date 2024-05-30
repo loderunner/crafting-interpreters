@@ -28,6 +28,7 @@ await exprFile.close();
 
 const stmtBaseClass = 'Stmt';
 const stmtRules = [
+  'Block      -> stmts: Stmt[]',
   'Expression -> expr: Expr',
   'Print      -> expr: Expr',
   'Var        -> name: Token, initializer?: Expr',

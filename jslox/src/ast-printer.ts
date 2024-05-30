@@ -5,11 +5,17 @@ import {
   LiteralExpr,
   UnaryExpr,
   ExprVisitor,
+  AssignExpr,
+  VariableExpr,
 } from './expr.js';
 
 export default class ASTPrinter implements ExprVisitor<string> {
   print(expr: Expr): string {
     return expr.accept(this);
+  }
+
+  visitAssign(expr: AssignExpr): string {
+    return this.parenthesize(`${expr.name.lexeme} =`, expr.value);
   }
 
   visitBinary(expr: BinaryExpr): string {
@@ -26,6 +32,10 @@ export default class ASTPrinter implements ExprVisitor<string> {
 
   visitUnary(expr: UnaryExpr): string {
     return this.parenthesize(expr.op.lexeme, expr.right);
+  }
+
+  visitVariable(expr: VariableExpr): string {
+    return expr.name.lexeme;
   }
 
   private parenthesize(name: string, ...exprs: Expr[]) {

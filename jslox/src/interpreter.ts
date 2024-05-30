@@ -11,6 +11,7 @@ import {
 } from './expr.js';
 import { runtimeError } from './index.js';
 import {
+  BlockStmt,
   ExpressionStmt,
   PrintStmt,
   Stmt,
@@ -42,7 +43,7 @@ export class InterpreterError extends Error {
 export type Value = null | boolean | number | string;
 
 export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  private readonly environment = new Environment();
+  private environment = new Environment();
 
   interpret(stmts: Stmt[]) {
     try {
@@ -64,6 +65,22 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitExpression(stmt: ExpressionStmt): void {
     this.evaluate(stmt.expr);
+  }
+
+  visitBlock(stmt: BlockStmt): void {
+    this.executeBlock(stmt.stmts, new Environment(this.environment));
+  }
+
+  private executeBlock(stmts: Stmt[], env: Environment) {
+    const previousEnv = this.environment;
+    try {
+      this.environment = env;
+      for (const stmt of stmts) {
+        this.execute(stmt);
+      }
+    } finally {
+      this.environment = previousEnv;
+    }
   }
 
   visitPrint(stmt: PrintStmt): void {

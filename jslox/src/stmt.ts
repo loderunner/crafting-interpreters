@@ -2,6 +2,7 @@ import { Token } from './token.js';
 import { Expr } from './expr.js';
 
 export interface StmtVisitor<R> {
+  visitBlock(stmt: BlockStmt): R;
   visitExpression(stmt: ExpressionStmt): R;
   visitPrint(stmt: PrintStmt): R;
   visitVar(stmt: VarStmt): R;
@@ -10,6 +11,18 @@ export interface StmtVisitor<R> {
 export abstract class Stmt {
   abstract accept<R>(visitor: StmtVisitor<R>): R;
 }
+
+export class BlockStmt extends Stmt {
+  constructor(
+    public readonly stmts: Stmt[],
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitBlock(this);
+  }
+};
 
 export class ExpressionStmt extends Stmt {
   constructor(

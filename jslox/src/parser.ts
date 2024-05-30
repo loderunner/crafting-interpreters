@@ -8,7 +8,7 @@ import {
   VariableExpr,
 } from './expr.js';
 import { error } from './index.js';
-import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from './stmt.js';
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from './stmt.js';
 import { Token, TokenType } from './token.js';
 
 class ParseError extends Error {
@@ -79,6 +79,9 @@ export default class Parser {
     if (this.match(TokenType.PRINT)) {
       return this.parsePrintStatement();
     }
+    if (this.match(TokenType.LEFT_BRACE)) {
+      return new BlockStmt(this.parseBlockStatement());
+    }
     return this.parseExpressionStatement();
   }
 
@@ -86,6 +89,16 @@ export default class Parser {
     const expr = this.parseExpression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new PrintStmt(expr);
+  }
+
+  private parseBlockStatement(): Stmt[] {
+    const stmts: Stmt[] = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.eof) {
+      stmts.push(this.parseDeclaration());
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+    return stmts;
   }
 
   private parseExpressionStatement(): Stmt {
