@@ -14,6 +14,7 @@ const outDir = path.resolve(args[0]);
 
 const exprBaseClass = 'Expr';
 const exprRules = [
+  'Assign   -> name: Token, value: Expr',
   'Binary   -> op: Token, left: Expr, right: Expr',
   'Grouping -> expr: Expr',
   'Unary    -> op: Token, right: Expr',

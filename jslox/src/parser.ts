@@ -1,4 +1,5 @@
 import {
+  AssignExpr,
   BinaryExpr,
   Expr,
   GroupingExpr,
@@ -94,7 +95,25 @@ export default class Parser {
   }
 
   private parseExpression(): Expr {
-    return this.parseEquality();
+    return this.parseAssignment();
+  }
+
+  private parseAssignment(): Expr {
+    const expr = this.parseEquality();
+
+    if (this.match(TokenType.EQUAL)) {
+      const equals = this.previous();
+      const value = this.parseAssignment();
+
+      if (expr instanceof VariableExpr) {
+        const name = expr.name;
+        return new AssignExpr(name, value);
+      }
+
+      createError(equals, 'Invalid assignment target.');
+    }
+
+    return expr;
   }
 
   private parseEquality(): Expr {

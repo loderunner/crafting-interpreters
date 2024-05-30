@@ -7,6 +7,7 @@ import {
   UnaryExpr,
   ExprVisitor,
   VariableExpr,
+  AssignExpr,
 } from './expr.js';
 import { runtimeError } from './index.js';
 import {
@@ -72,25 +73,25 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitVar(stmt: VarStmt): void {
     if (stmt.initializer === undefined) {
-      this.environment.define(stmt.name.lexeme, null);
+      this.environment.define(stmt.name, null);
       return;
     }
 
-    this.environment.define(stmt.name.lexeme, this.evaluate(stmt.initializer));
+    this.environment.define(stmt.name, this.evaluate(stmt.initializer));
   }
 
   private evaluate(expr: Expr): Value {
     return expr.accept(this);
   }
 
-  visitVariable(expr: VariableExpr): Value {
-    const { name } = expr;
-    const value = this.environment.get(name.lexeme);
-    if (value === undefined) {
-      throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
-    }
-
+  visitAssign(expr: AssignExpr): Value {
+    const value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
     return value;
+  }
+
+  visitVariable(expr: VariableExpr): Value {
+    return this.environment.get(expr.name);
   }
 
   visitBinary(expr: BinaryExpr): Value {

@@ -1,6 +1,7 @@
 import { Token, Literal } from './token.js';
 
 export interface ExprVisitor<R> {
+  visitAssign(expr: AssignExpr): R;
   visitBinary(expr: BinaryExpr): R;
   visitGrouping(expr: GroupingExpr): R;
   visitUnary(expr: UnaryExpr): R;
@@ -11,6 +12,19 @@ export interface ExprVisitor<R> {
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
+
+export class AssignExpr extends Expr {
+  constructor(
+    public readonly name: Token,
+    public readonly value: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitAssign(this);
+  }
+};
 
 export class BinaryExpr extends Expr {
   constructor(
