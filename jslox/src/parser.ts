@@ -4,10 +4,11 @@ import {
   GroupingExpr,
   LiteralExpr,
   UnaryExpr,
+  VariableExpr,
 } from './expr.js';
 import { error } from './index.js';
-import { ExpressionStmt, PrintStmt, Stmt } from './stmt.js';
-import Token, { TokenType } from './token.js';
+import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from './stmt.js';
+import { Token, TokenType } from './token.js';
 
 class ParseError extends Error {
   constructor(
@@ -35,8 +36,15 @@ export default class Parser {
     try {
       const stmts: Stmt[] = [];
       while (!this.eof) {
-        const stmt = this.parseStatement();
-        stmts.push(stmt);
+        try {
+          const stmt = this.parseDeclaration();
+          stmts.push(stmt);
+        } catch (err) {
+          if (err instanceof ParseError) {
+            this.synchronize();
+          }
+          throw err;
+        }
       }
       return stmts;
     } catch (err) {
@@ -45,6 +53,25 @@ export default class Parser {
       }
       throw err;
     }
+  }
+
+  private parseDeclaration(): Stmt {
+    if (this.match(TokenType.VAR)) {
+      return this.parseVarDeclaration();
+    }
+    return this.parseStatement();
+  }
+
+  private parseVarDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, 'Expect variable name.');
+
+    let initializer: Expr | undefined = undefined;
+    if (this.match(TokenType.EQUAL)) {
+      initializer = this.parseExpression();
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+    return new VarStmt(name, initializer);
   }
 
   private parseStatement(): Stmt {
@@ -143,6 +170,9 @@ export default class Parser {
       const expr = this.parseExpression();
       this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression");
       return new GroupingExpr(expr);
+    }
+    if (this.match(TokenType.IDENTIFIER)) {
+      return new VariableExpr(this.previous());
     }
 
     throw createError(this.peek(), 'Expected expression');

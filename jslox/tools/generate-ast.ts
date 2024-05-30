@@ -16,18 +16,26 @@ const exprBaseClass = 'Expr';
 const exprRules = [
   'Binary   -> op: Token, left: Expr, right: Expr',
   'Grouping -> expr: Expr',
-  'Literal  -> value: Literal',
   'Unary    -> op: Token, right: Expr',
+  'Literal  -> value: Literal',
+  'Variable -> name: Token',
 ];
-const exprImports = ["import Token, { Literal } from './token.js'"];
+const exprImports = ["import { Token, Literal } from './token.js'"];
 const exprFile = await fs.open(`${outDir}/expr.ts`, 'w');
 await generateAST(exprFile, exprImports, exprBaseClass, exprRules);
 await exprFile.close();
 
 const stmtBaseClass = 'Stmt';
-const stmtRules = ['Expression -> expr: Expr', 'Print      -> expr: Expr'];
+const stmtRules = [
+  'Expression -> expr: Expr',
+  'Print      -> expr: Expr',
+  'Var        -> name: Token, initializer?: Expr',
+];
 const stmtFile = await fs.open(`${outDir}/stmt.ts`, 'w');
-const stmtImports = ["import { Expr } from './expr.js'"];
+const stmtImports = [
+  "import { Token } from './token.js'",
+  "import { Expr } from './expr.js'",
+];
 await generateAST(stmtFile, stmtImports, stmtBaseClass, stmtRules);
 await exprFile.close();
 

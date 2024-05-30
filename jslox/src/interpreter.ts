@@ -1,3 +1,4 @@
+import { Environment } from './environment.js';
 import {
   BinaryExpr,
   Expr,
@@ -5,10 +6,17 @@ import {
   LiteralExpr,
   UnaryExpr,
   ExprVisitor,
+  VariableExpr,
 } from './expr.js';
 import { runtimeError } from './index.js';
-import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor } from './stmt.js';
-import Token, { TokenType } from './token.js';
+import {
+  ExpressionStmt,
+  PrintStmt,
+  Stmt,
+  StmtVisitor,
+  VarStmt,
+} from './stmt.js';
+import { Token, TokenType } from './token.js';
 
 export class RuntimeError extends Error {
   constructor(
@@ -33,6 +41,8 @@ export class InterpreterError extends Error {
 export type Value = null | boolean | number | string;
 
 export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
+  private readonly environment = new Environment();
+
   interpret(stmts: Stmt[]) {
     try {
       for (const stmt of stmts) {
@@ -60,8 +70,27 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     console.log(stringify(value));
   }
 
+  visitVar(stmt: VarStmt): void {
+    if (stmt.initializer === undefined) {
+      this.environment.define(stmt.name.lexeme, null);
+      return;
+    }
+
+    this.environment.define(stmt.name.lexeme, this.evaluate(stmt.initializer));
+  }
+
   private evaluate(expr: Expr): Value {
     return expr.accept(this);
+  }
+
+  visitVariable(expr: VariableExpr): Value {
+    const { name } = expr;
+    const value = this.environment.get(name.lexeme);
+    if (value === undefined) {
+      throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
+    }
+
+    return value;
   }
 
   visitBinary(expr: BinaryExpr): Value {

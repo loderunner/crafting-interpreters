@@ -51,7 +51,7 @@ export enum TokenType {
 
 export type Literal = string | number | boolean | null;
 
-export default class Token {
+export class Token {
   constructor(
     readonly tokenType: TokenType,
     readonly lexeme: string,

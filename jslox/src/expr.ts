@@ -1,10 +1,11 @@
-import Token, { Literal } from './token.js';
+import { Token, Literal } from './token.js';
 
 export interface ExprVisitor<R> {
   visitBinary(expr: BinaryExpr): R;
   visitGrouping(expr: GroupingExpr): R;
-  visitLiteral(expr: LiteralExpr): R;
   visitUnary(expr: UnaryExpr): R;
+  visitLiteral(expr: LiteralExpr): R;
+  visitVariable(expr: VariableExpr): R;
 };
 
 export abstract class Expr {
@@ -37,6 +38,19 @@ export class GroupingExpr extends Expr {
   }
 };
 
+export class UnaryExpr extends Expr {
+  constructor(
+    public readonly op: Token,
+    public readonly right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitUnary(this);
+  }
+};
+
 export class LiteralExpr extends Expr {
   constructor(
     public readonly value: Literal,
@@ -49,16 +63,15 @@ export class LiteralExpr extends Expr {
   }
 };
 
-export class UnaryExpr extends Expr {
+export class VariableExpr extends Expr {
   constructor(
-    public readonly op: Token,
-    public readonly right: Expr,
+    public readonly name: Token,
   ) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitUnary(this);
+    return visitor.visitVariable(this);
   }
 };
 

@@ -4,7 +4,7 @@ import * as sysexits from './sysexits.js';
 import fs from 'node:fs/promises';
 import readline from 'node:readline/promises';
 import Scanner from './scanner.js';
-import Token, { TokenType } from './token.js';
+import { Token, TokenType } from './token.js';
 import Parser from './parser.js';
 import { Interpreter, RuntimeError } from './interpreter.js';
 

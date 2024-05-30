@@ -1,5 +1,5 @@
 import { error } from './index.js';
-import Token, { Literal, TokenType } from './token.js';
+import { Token, Literal, TokenType } from './token.js';
 
 export default class Scanner {
   private tokens: Token[] = [];
