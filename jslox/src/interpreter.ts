@@ -8,6 +8,7 @@ import {
   ExprVisitor,
   VariableExpr,
   AssignExpr,
+  LogicalExpr,
 } from './expr.js';
 import { runtimeError } from './index.js';
 import {
@@ -194,6 +195,22 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitLiteral(expr: LiteralExpr): Value {
     return expr.value;
+  }
+
+  visitLogical(expr: LogicalExpr): Value {
+    const left = this.evaluate(expr.left);
+
+    if (expr.op.tokenType === TokenType.OR) {
+      if (isTruthy(left)) {
+        return left;
+      }
+    } else {
+      if (!isTruthy(left)) {
+        return left;
+      }
+    }
+
+    return this.evaluate(expr.right);
   }
 
   visitUnary(expr: UnaryExpr): Value {

@@ -4,6 +4,7 @@ import {
   Expr,
   GroupingExpr,
   LiteralExpr,
+  LogicalExpr,
   UnaryExpr,
   VariableExpr,
 } from './expr.js';
@@ -137,7 +138,7 @@ export default class Parser {
   }
 
   private parseAssignment(): Expr {
-    const expr = this.parseEquality();
+    const expr = this.parseOr();
 
     if (this.match(TokenType.EQUAL)) {
       const equals = this.previous();
@@ -152,6 +153,30 @@ export default class Parser {
     }
 
     return expr;
+  }
+
+  private parseOr(): Expr {
+    let left = this.parseAnd();
+
+    while (this.match(TokenType.OR)) {
+      const op = this.previous();
+      const right = this.parseAnd();
+      left = new LogicalExpr(op, left, right);
+    }
+
+    return left;
+  }
+
+  private parseAnd(): Expr {
+    let left = this.parseEquality();
+
+    while (this.match(TokenType.AND)) {
+      const op = this.previous();
+      const right = this.parseEquality();
+      left = new LogicalExpr(op, left, right);
+    }
+
+    return left;
   }
 
   private parseEquality(): Expr {

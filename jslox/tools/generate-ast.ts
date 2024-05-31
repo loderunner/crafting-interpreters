@@ -19,6 +19,7 @@ const exprRules = [
   'Grouping -> expr: Expr',
   'Unary    -> op: Token, right: Expr',
   'Literal  -> value: Literal',
+  'Logical  -> op: Token, left: Expr, right: Expr',
   'Variable -> name: Token',
 ];
 const exprImports = ["import { Token, Literal } from './token.js'"];
