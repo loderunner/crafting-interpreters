@@ -16,6 +16,7 @@ import {
   PrintStmt,
   Stmt,
   VarStmt,
+  WhileStmt,
 } from './stmt.js';
 import { Token, TokenType } from './token.js';
 
@@ -84,6 +85,10 @@ export default class Parser {
   }
 
   private parseStatement(): Stmt {
+    if (this.match(TokenType.FOR)) {
+      return this.parseForStatement();
+    }
+
     if (this.match(TokenType.IF)) {
       return this.parseIfStatement();
     }
@@ -92,10 +97,53 @@ export default class Parser {
       return this.parsePrintStatement();
     }
 
+    if (this.match(TokenType.WHILE)) {
+      return this.parseWhileStatement();
+    }
+
     if (this.match(TokenType.LEFT_BRACE)) {
       return new BlockStmt(this.parseBlockStatement());
     }
+
     return this.parseExpressionStatement();
+  }
+
+  private parseForStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    let init: Stmt | undefined = undefined;
+    if (this.match(TokenType.VAR)) {
+      init = this.parseVarDeclaration();
+    } else if (!this.match(TokenType.SEMICOLON)) {
+      init = this.parseExpressionStatement();
+    }
+
+    let cond: Expr | undefined = undefined;
+    if (!this.match(TokenType.SEMICOLON)) {
+      cond = this.parseExpression();
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after 'for' condition.");
+
+    let incr: Expr | undefined = undefined;
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      incr = this.parseExpression();
+    }
+
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'for' clauses");
+
+    const body = this.parseStatement();
+
+    let forStmt = body;
+    if (incr !== undefined) {
+      forStmt = new BlockStmt([forStmt, new ExpressionStmt(incr)]);
+    }
+    forStmt = new WhileStmt(cond ?? new LiteralExpr(true), forStmt);
+    if (init !== undefined) {
+      forStmt = new BlockStmt([init, forStmt]);
+    }
+
+    return forStmt;
   }
 
   private parseIfStatement(): Stmt {
@@ -115,6 +163,15 @@ export default class Parser {
     const expr = this.parseExpression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new PrintStmt(expr);
+  }
+
+  private parseWhileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    const cond = this.parseExpression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'while' condition.");
+    const body = this.parseStatement();
+
+    return new WhileStmt(cond, body);
   }
 
   private parseBlockStatement(): Stmt[] {

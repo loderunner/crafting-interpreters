@@ -33,6 +33,7 @@ const stmtRules = [
   'Expression -> expr: Expr',
   'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',
   'Print      -> expr: Expr',
+  'While      -> condition: Expr, body: Stmt',
   'Var        -> name: Token, initializer?: Expr',
 ];
 const stmtFile = await fs.open(`${outDir}/stmt.ts`, 'w');

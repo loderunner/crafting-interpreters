@@ -19,6 +19,7 @@ import {
   Stmt,
   StmtVisitor,
   VarStmt,
+  WhileStmt,
 } from './stmt.js';
 import { Token, TokenType } from './token.js';
 
@@ -99,6 +100,12 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   visitPrint(stmt: PrintStmt): void {
     const value = this.evaluate(stmt.expr);
     console.log(stringify(value));
+  }
+
+  visitWhile(stmt: WhileStmt): void {
+    while (isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body);
+    }
   }
 
   visitVar(stmt: VarStmt): void {

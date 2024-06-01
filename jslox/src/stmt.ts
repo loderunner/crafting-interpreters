@@ -6,6 +6,7 @@ export interface StmtVisitor<R> {
   visitExpression(stmt: ExpressionStmt): R;
   visitIf(stmt: IfStmt): R;
   visitPrint(stmt: PrintStmt): R;
+  visitWhile(stmt: WhileStmt): R;
   visitVar(stmt: VarStmt): R;
 };
 
@@ -60,6 +61,19 @@ export class PrintStmt extends Stmt {
 
   accept<R>(visitor: StmtVisitor<R>): R {
     return visitor.visitPrint(this);
+  }
+};
+
+export class WhileStmt extends Stmt {
+  constructor(
+    public readonly condition: Expr,
+    public readonly body: Stmt,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitWhile(this);
   }
 };
 
