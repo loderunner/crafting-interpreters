@@ -16,10 +16,11 @@ const exprBaseClass = 'Expr';
 const exprRules = [
   'Assign   -> name: Token, value: Expr',
   'Binary   -> op: Token, left: Expr, right: Expr',
+  'Call     -> callee: Expr, paren: Token, args: Expr[]',
   'Grouping -> expr: Expr',
-  'Unary    -> op: Token, right: Expr',
   'Literal  -> value: Literal',
   'Logical  -> op: Token, left: Expr, right: Expr',
+  'Unary    -> op: Token, right: Expr',
   'Variable -> name: Token',
 ];
 const exprImports = ["import { Token, Literal } from './token.js'"];
@@ -31,6 +32,7 @@ const stmtBaseClass = 'Stmt';
 const stmtRules = [
   'Block      -> stmts: Stmt[]',
   'Expression -> expr: Expr',
+  'Fun        -> name: Token, params: Token[], body: Stmt[]',
   'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',
   'Print      -> expr: Expr',
   'While      -> condition: Expr, body: Stmt',

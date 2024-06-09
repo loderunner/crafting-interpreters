@@ -1,6 +1,7 @@
 import {
   AssignExpr,
   BinaryExpr,
+  CallExpr,
   Expr,
   GroupingExpr,
   LiteralExpr,
@@ -12,6 +13,7 @@ import { error } from './index.js';
 import {
   BlockStmt,
   ExpressionStmt,
+  FunStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -66,10 +68,34 @@ export default class Parser {
   }
 
   private parseDeclaration(): Stmt {
+    if (this.match(TokenType.FUN)) {
+      return this.parseFunctionDeclaration('function');
+    }
     if (this.match(TokenType.VAR)) {
       return this.parseVarDeclaration();
     }
     return this.parseStatement();
+  }
+
+  private parseFunctionDeclaration(kind: 'function'): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+    this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
+    const params: Token[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (params.length >= 255) {
+          createError(this.peek(), "Can't have more than 255 parameters.");
+        }
+        params.push(
+          this.consume(TokenType.IDENTIFIER, 'Expect parameter name.'),
+        );
+      } while (this.match(TokenType.COMMA));
+    }
+    this.consume(TokenType.RIGHT_PAREN, `Expect ')' after ${kind} parameters.`);
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+    const body = this.parseBlockStatement();
+
+    return new FunStmt(name, params, body);
   }
 
   private parseVarDeclaration(): Stmt {
@@ -289,7 +315,36 @@ export default class Parser {
       const right = this.parseUnary();
       return new UnaryExpr(op, right);
     }
-    return this.parsePrimary();
+    return this.parseCall();
+  }
+
+  private parseCall(): Expr {
+    let expr = this.parsePrimary();
+
+    while (this.match(TokenType.LEFT_PAREN)) {
+      expr = this.finishCall(expr);
+    }
+
+    return expr;
+  }
+
+  private finishCall(expr: Expr): Expr {
+    const args: Expr[] = [];
+    if (!this.match(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length >= 255) {
+          createError(this.peek(), "Can't have more than 255 arguments.");
+        }
+        args.push(this.parseExpression());
+      } while (this.match(TokenType.COMMA));
+    }
+
+    const paren = this.consume(
+      TokenType.RIGHT_PAREN,
+      "Expect ')' after arguments.",
+    );
+
+    return new CallExpr(expr, paren, args);
   }
 
   private parsePrimary(): Expr {

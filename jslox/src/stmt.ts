@@ -4,6 +4,7 @@ import { Expr } from './expr.js';
 export interface StmtVisitor<R> {
   visitBlock(stmt: BlockStmt): R;
   visitExpression(stmt: ExpressionStmt): R;
+  visitFun(stmt: FunStmt): R;
   visitIf(stmt: IfStmt): R;
   visitPrint(stmt: PrintStmt): R;
   visitWhile(stmt: WhileStmt): R;
@@ -35,6 +36,20 @@ export class ExpressionStmt extends Stmt {
 
   accept<R>(visitor: StmtVisitor<R>): R {
     return visitor.visitExpression(this);
+  }
+};
+
+export class FunStmt extends Stmt {
+  constructor(
+    public readonly name: Token,
+    public readonly params: Token[],
+    public readonly body: Stmt[],
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitFun(this);
   }
 };
 

@@ -9,11 +9,14 @@ import {
   VariableExpr,
   AssignExpr,
   LogicalExpr,
+  CallExpr,
 } from './expr.js';
+import { Fun } from './fun.js';
 import { runtimeError } from './index.js';
 import {
   BlockStmt,
   ExpressionStmt,
+  FunStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -43,10 +46,39 @@ export class InterpreterError extends Error {
   }
 }
 
-export type Value = null | boolean | number | string;
+export interface Callable {
+  call(interpreter: Interpreter, args: Value[]): Value;
+  arity: number;
+}
+export type Value = null | boolean | number | string | Callable;
+
+function isCallable(value: Value): value is Callable {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'call' in value &&
+    typeof value.call === 'function' &&
+    'arity' in value &&
+    typeof value.arity === 'number'
+  );
+}
 
 export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  private environment = new Environment();
+  readonly globals = new Environment();
+  private environment = this.globals;
+
+  constructor() {
+    const clockCallable = {
+      arity: 0,
+      call(_interpreter, _args) {
+        return Date.now() / 1000.0;
+      },
+      toString() {
+        return '<native fun>';
+      },
+    } as Callable;
+    this.globals.define('clock', clockCallable);
+  }
 
   interpret(stmts: Stmt[]) {
     try {
@@ -70,6 +102,10 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.evaluate(stmt.expr);
   }
 
+  visitFun(stmt: FunStmt): void {
+    this.environment.define(stmt.name.lexeme, new Fun(stmt));
+  }
+
   visitIf(stmt: IfStmt): void {
     if (isTruthy(this.evaluate(stmt.condition))) {
       this.execute(stmt.thenBranch);
@@ -85,7 +121,7 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.executeBlock(stmt.stmts, new Environment(this.environment));
   }
 
-  private executeBlock(stmts: Stmt[], env: Environment) {
+  executeBlock(stmts: Stmt[], env: Environment) {
     const previousEnv = this.environment;
     try {
       this.environment = env;
@@ -110,11 +146,11 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitVar(stmt: VarStmt): void {
     if (stmt.initializer === undefined) {
-      this.environment.define(stmt.name, null);
+      this.environment.define(stmt.name.lexeme, null);
       return;
     }
 
-    this.environment.define(stmt.name, this.evaluate(stmt.initializer));
+    this.environment.define(stmt.name.lexeme, this.evaluate(stmt.initializer));
   }
 
   private evaluate(expr: Expr): Value {
@@ -236,6 +272,24 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
           'Unexpected operator in unary expression.',
         );
     }
+  }
+
+  visitCall(expr: CallExpr): Value {
+    const callee = this.evaluate(expr.callee);
+    if (!isCallable(callee)) {
+      throw new RuntimeError(
+        expr.paren,
+        'Can only call functions and classes.',
+      );
+    }
+    if (expr.args.length !== callee.arity) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${callee.arity} arguments, got ${expr.args.length}`,
+      );
+    }
+    const args = expr.args.map((arg) => this.evaluate(arg));
+    return callee.call(this, args);
   }
 }
 

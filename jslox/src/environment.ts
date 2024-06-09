@@ -6,8 +6,8 @@ export class Environment {
 
   constructor(private readonly enclosing?: Environment) {}
 
-  define(name: Token, value: Value) {
-    this.values.set(name.lexeme, value);
+  define(name: string, value: Value) {
+    this.values.set(name, value);
   }
 
   get(name: Token): Value {
