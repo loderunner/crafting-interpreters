@@ -35,6 +35,7 @@ const stmtRules = [
   'Fun        -> name: Token, params: Token[], body: Stmt[]',
   'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',
   'Print      -> expr: Expr',
+  'Return     -> keyword: Token, value?: Expr',
   'While      -> condition: Expr, body: Stmt',
   'Var        -> name: Token, initializer?: Expr',
 ];

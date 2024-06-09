@@ -16,6 +16,7 @@ import {
   FunStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   VarStmt,
   WhileStmt,
@@ -123,6 +124,10 @@ export default class Parser {
       return this.parsePrintStatement();
     }
 
+    if (this.match(TokenType.RETURN)) {
+      return this.parseReturnStatement();
+    }
+
     if (this.match(TokenType.WHILE)) {
       return this.parseWhileStatement();
     }
@@ -189,6 +194,16 @@ export default class Parser {
     const expr = this.parseExpression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new PrintStmt(expr);
+  }
+
+  private parseReturnStatement(): Stmt {
+    const keyword = this.peek();
+    let expr: Expr | undefined = undefined;
+    if (!this.check(TokenType.SEMICOLON)) {
+      expr = this.parseExpression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after return statement.");
+    return new ReturnStmt(keyword, expr);
   }
 
   private parseWhileStatement(): Stmt {
@@ -330,7 +345,7 @@ export default class Parser {
 
   private finishCall(expr: Expr): Expr {
     const args: Expr[] = [];
-    if (!this.match(TokenType.RIGHT_PAREN)) {
+    if (!this.check(TokenType.RIGHT_PAREN)) {
       do {
         if (args.length >= 255) {
           createError(this.peek(), "Can't have more than 255 arguments.");

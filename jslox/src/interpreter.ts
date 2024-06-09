@@ -11,7 +11,7 @@ import {
   LogicalExpr,
   CallExpr,
 } from './expr.js';
-import { Fun } from './fun.js';
+import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
 import {
   BlockStmt,
@@ -19,6 +19,7 @@ import {
   FunStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   StmtVisitor,
   VarStmt,
@@ -103,7 +104,8 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitFun(stmt: FunStmt): void {
-    this.environment.define(stmt.name.lexeme, new Fun(stmt));
+    const fun = new Fun(stmt, this.environment);
+    this.environment.define(stmt.name.lexeme, fun);
   }
 
   visitIf(stmt: IfStmt): void {
@@ -136,6 +138,13 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   visitPrint(stmt: PrintStmt): void {
     const value = this.evaluate(stmt.expr);
     console.log(stringify(value));
+  }
+
+  visitReturn(stmt: ReturnStmt): void {
+    if (stmt.value !== undefined) {
+      throw new Return(this.evaluate(stmt.value));
+    }
+    throw new Return(null);
   }
 
   visitWhile(stmt: WhileStmt): void {
