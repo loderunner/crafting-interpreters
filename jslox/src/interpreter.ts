@@ -65,8 +65,9 @@ function isCallable(value: Value): value is Callable {
 }
 
 export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  readonly globals = new Environment();
+  private readonly globals = new Environment();
   private environment = this.globals;
+  private readonly locals = new Map<Expr, number>();
 
   constructor() {
     const clockCallable = {
@@ -168,12 +169,22 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitAssign(expr: AssignExpr): Value {
     const value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
+    const depth = this.locals.get(expr);
+    if (depth !== undefined) {
+      this.environment.assignAt(expr.name, value, depth);
+    } else {
+      this.globals.assign(expr.name, value);
+    }
     return value;
   }
 
   visitVariable(expr: VariableExpr): Value {
-    return this.environment.get(expr.name);
+    const depth = this.locals.get(expr);
+    if (depth !== undefined) {
+      return this.environment.getAt(expr.name, depth);
+    } else {
+      return this.globals.get(expr.name);
+    }
   }
 
   visitBinary(expr: BinaryExpr): Value {
@@ -299,6 +310,10 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
     const args = expr.args.map((arg) => this.evaluate(arg));
     return callee.call(this, args);
+  }
+
+  resolve(expr: Expr, depth: number) {
+    this.locals.set(expr, depth);
   }
 }
 

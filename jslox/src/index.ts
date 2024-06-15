@@ -7,6 +7,7 @@ import Scanner from './scanner.js';
 import { Token, TokenType } from './token.js';
 import Parser from './parser.js';
 import { Interpreter, RuntimeError } from './interpreter.js';
+import { Resolver } from './resolver.js';
 
 const interpreter = new Interpreter();
 
@@ -69,6 +70,9 @@ function run(source: string) {
   if (hadError) {
     return;
   }
+
+  const resolver = new Resolver(interpreter);
+  resolver.resolve(stmts);
 
   interpreter.interpret(stmts);
 }

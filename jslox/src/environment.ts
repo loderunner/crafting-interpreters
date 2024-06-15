@@ -10,6 +10,15 @@ export class Environment {
     this.values.set(name, value);
   }
 
+  private ancestor(depth: number): Environment | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let env: Environment | undefined = this;
+    for (let i = 0; i < depth; i++) {
+      env = env?.enclosing;
+    }
+    return env;
+  }
+
   get(name: Token): Value {
     const value = this.values.get(name.lexeme);
 
@@ -20,6 +29,17 @@ export class Environment {
       throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
     return value;
+  }
+
+  getAt(name: Token, depth: number): Value {
+    const ancestor = this.ancestor(depth);
+    if (ancestor === undefined) {
+      throw new RuntimeError(
+        name,
+        "Couldn't resolve variable '" + name.lexeme + "'.",
+      );
+    }
+    return ancestor.values.get(name.lexeme) as Value;
   }
 
   assign(name: Token, value: Value) {
@@ -34,5 +54,16 @@ export class Environment {
     }
 
     throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+  }
+
+  assignAt(name: Token, value: Value, depth: number) {
+    const ancestor = this.ancestor(depth);
+    if (ancestor === undefined) {
+      throw new RuntimeError(
+        name,
+        "Couldn't resolve variable '" + name.lexeme + "'.",
+      );
+    }
+    ancestor.values.set(name.lexeme, value);
   }
 }
