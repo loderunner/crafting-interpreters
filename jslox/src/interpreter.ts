@@ -250,6 +250,24 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         return !isEqual(left, right);
       case TokenType.EQUAL_EQUAL:
         return isEqual(left, right);
+      case TokenType.LEFT_BRACKET:
+        if (!Array.isArray(left)) {
+          throw new RuntimeError(expr.op, 'Can only index arrays.');
+        }
+        if (
+          typeof right !== 'number' ||
+          !Number.isInteger(right) ||
+          right < 0
+        ) {
+          throw new RuntimeError(
+            expr.op,
+            'Can only index arrays with positive integers.',
+          );
+        }
+        if (right >= left.length) {
+          throw new RuntimeError(expr.op, 'Array index out of bounds.');
+        }
+        return left[right];
       default:
         throw new InterpreterError(
           expr.op,

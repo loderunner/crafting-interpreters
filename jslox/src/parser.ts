@@ -331,7 +331,18 @@ export default class Parser {
       const right = this.parseUnary();
       return new UnaryExpr(op, right);
     }
-    return this.parseCall();
+    return this.parseIndex();
+  }
+
+  private parseIndex(): Expr {
+    const expr = this.parseCall();
+    if (this.match(TokenType.LEFT_BRACKET)) {
+      const bracket = this.previous();
+      const index = this.parseExpression();
+      this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
+      return new BinaryExpr(bracket, expr, index);
+    }
+    return expr;
   }
 
   private parseCall(): Expr {
