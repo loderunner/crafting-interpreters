@@ -10,6 +10,7 @@ import {
   AssignExpr,
   LogicalExpr,
   CallExpr,
+  ArrayExpr,
 } from './expr.js';
 import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
@@ -51,7 +52,7 @@ export interface Callable {
   call(interpreter: Interpreter, args: Value[]): Value;
   arity: number;
 }
-export type Value = null | boolean | number | string | Callable;
+export type Value = null | boolean | number | string | Callable | Value[];
 
 function isCallable(value: Value): value is Callable {
   return (
@@ -165,6 +166,11 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private evaluate(expr: Expr): Value {
     return expr.accept(this);
+  }
+
+  visitArray(expr: ArrayExpr): Value {
+    const values = expr.items.map((item) => this.evaluate(item));
+    return values;
   }
 
   visitAssign(expr: AssignExpr): Value {
@@ -335,10 +341,17 @@ function isEqual(left: Value, right: Value): boolean {
   return left === right;
 }
 
-function stringify(value: Value): string {
+function stringify(value: Value, depth = 0): string {
   if (value === null) {
     return 'nil';
   }
 
+  if (Array.isArray(value)) {
+    return `[${value.map((v) => stringify(v, depth + 1)).join(',')}]`;
+  }
+
+  if (typeof value === 'string' && depth > 0) {
+    return JSON.stringify(value);
+  }
   return value.toString();
 }

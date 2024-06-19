@@ -1,4 +1,5 @@
 import {
+  ArrayExpr,
   AssignExpr,
   BinaryExpr,
   CallExpr,
@@ -363,6 +364,19 @@ export default class Parser {
   }
 
   private parsePrimary(): Expr {
+    if (this.match(TokenType.LEFT_BRACKET)) {
+      if (this.match(TokenType.RIGHT_BRACKET)) {
+        return new ArrayExpr([]);
+      }
+
+      const items: Expr[] = [];
+      do {
+        const item = this.parseExpression();
+        items.push(item);
+      } while (this.match(TokenType.COMMA));
+      this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array items.");
+      return new ArrayExpr(items);
+    }
     if (this.match(TokenType.FALSE)) {
       return new LiteralExpr(false);
     }

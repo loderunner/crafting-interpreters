@@ -14,6 +14,7 @@ const outDir = path.resolve(args[0]);
 
 const exprBaseClass = 'Expr';
 const exprRules = [
+  'Array    -> items: Expr[]',
   'Assign   -> name: Token, value: Expr',
   'Binary   -> op: Token, left: Expr, right: Expr',
   'Call     -> callee: Expr, paren: Token, args: Expr[]',

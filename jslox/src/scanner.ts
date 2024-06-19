@@ -39,6 +39,12 @@ export default class Scanner {
       case '}':
         this.addToken(TokenType.RIGHT_BRACE);
         break;
+      case '[':
+        this.addToken(TokenType.LEFT_BRACKET);
+        break;
+      case ']':
+        this.addToken(TokenType.RIGHT_BRACKET);
+        break;
       case ',':
         this.addToken(TokenType.COMMA);
         break;
@@ -251,7 +257,7 @@ function isAlpha(c: string | undefined): boolean {
     c !== undefined &&
     (c === '_' ||
       (c.charCodeAt(0) >= 65 && c.charCodeAt(0) <= 90) ||
-      (c.charCodeAt(0) >= 90 && c.charCodeAt(0) <= 122))
+      (c.charCodeAt(0) >= 97 && c.charCodeAt(0) <= 122))
   );
 }
 

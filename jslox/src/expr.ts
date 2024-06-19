@@ -1,6 +1,7 @@
 import { Token, Literal } from './token.js';
 
 export interface ExprVisitor<R> {
+  visitArray(expr: ArrayExpr): R;
   visitAssign(expr: AssignExpr): R;
   visitBinary(expr: BinaryExpr): R;
   visitCall(expr: CallExpr): R;
@@ -14,6 +15,18 @@ export interface ExprVisitor<R> {
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
+
+export class ArrayExpr extends Expr {
+  constructor(
+    public readonly items: Expr[],
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitArray(this);
+  }
+};
 
 export class AssignExpr extends Expr {
   constructor(

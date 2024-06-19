@@ -1,4 +1,5 @@
 import {
+  ArrayExpr,
   AssignExpr,
   BinaryExpr,
   CallExpr,
@@ -145,6 +146,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   visitUnary(expr: UnaryExpr): void {
     this.resolveExpr(expr.right);
+  }
+
+  visitArray(expr: ArrayExpr): void {
+    for (const item of expr.items) {
+      this.resolveExpr(item);
+    }
   }
 
   visitLiteral(_expr: LiteralExpr): void {}
