@@ -222,9 +222,12 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         if (typeof left === 'string' && typeof right === 'string') {
           return left + right;
         }
+        if (Array.isArray(left) && Array.isArray(right)) {
+          return [...left, ...right];
+        }
         throw new RuntimeError(
           expr.op,
-          'Operands must be two numbers or two strings.',
+          'Operands must be two numbers, two strings or two arrays.',
         );
       case TokenType.GREATER:
         if (typeof left === 'number' && typeof right === 'number') {
