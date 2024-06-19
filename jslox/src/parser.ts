@@ -335,12 +335,12 @@ export default class Parser {
   }
 
   private parseIndex(): Expr {
-    const expr = this.parseCall();
-    if (this.match(TokenType.LEFT_BRACKET)) {
+    let expr = this.parseCall();
+    while (this.match(TokenType.LEFT_BRACKET)) {
       const bracket = this.previous();
       const index = this.parseExpression();
       this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
-      return new BinaryExpr(bracket, expr, index);
+      expr = new BinaryExpr(bracket, expr, index);
     }
     return expr;
   }
