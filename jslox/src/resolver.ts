@@ -24,10 +24,16 @@ import {
   VarStmt,
   WhileStmt,
 } from './stmt.js';
+import { Token } from './token.js';
 
 enum VarState {
   Declared,
   Defined,
+}
+
+enum FunctionType {
+  NONE,
+  FUNCTION,
 }
 
 type Scope = Map<string, VarState>;
@@ -41,6 +47,7 @@ class Scopes extends Array<Scope> {
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly scopes = new Scopes();
+  private currentFunctionType = FunctionType.NONE;
 
   constructor(private readonly interpreter: Interpreter) {}
 
@@ -57,11 +64,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitVar(stmt: VarStmt): void {
-    this.declare(stmt.name.lexeme);
+    this.declare(stmt.name);
     if (stmt.initializer !== undefined) {
       this.resolveExpr(stmt.initializer);
     }
-    this.define(stmt.name.lexeme);
+    this.define(stmt.name);
   }
 
   visitVariable(expr: VariableExpr): void {
@@ -79,9 +86,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitFun(stmt: FunStmt): void {
-    this.declare(stmt.name.lexeme);
-    this.define(stmt.name.lexeme);
-    this.resolveFun(stmt);
+    this.declare(stmt.name);
+    this.define(stmt.name);
+    this.resolveFun(stmt, FunctionType.FUNCTION);
   }
 
   visitExpression(stmt: ExpressionStmt): void {
@@ -101,6 +108,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturn(stmt: ReturnStmt): void {
+    if (this.currentFunctionType === FunctionType.NONE) {
+      error(stmt.keyword, "Can't return from top-level code.");
+    }
+
     if (stmt.value !== undefined) {
       this.resolveExpr(stmt.value);
     }
@@ -154,20 +165,24 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     expr.accept(this);
   }
 
-  private declare(name: string) {
-    if (this.scopes.top === undefined) {
+  private declare(name: Token) {
+    const scope = this.scopes.top;
+    if (scope === undefined) {
       return;
     }
+    if (scope.has(name.lexeme)) {
+      error(name, `Already a variable named ${name.lexeme} in this scope.`);
+    }
 
-    this.scopes.top.set(name, VarState.Declared);
+    scope.set(name.lexeme, VarState.Declared);
   }
 
-  private define(name: string) {
+  private define(name: Token) {
     if (this.scopes.top === undefined) {
       return;
     }
 
-    this.scopes.top.set(name, VarState.Defined);
+    this.scopes.top.set(name.lexeme, VarState.Defined);
   }
 
   private resolveLocal(expr: Expr, name: string) {
@@ -180,13 +195,17 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
   }
 
-  private resolveFun(fun: FunStmt) {
+  private resolveFun(fun: FunStmt, functionType: FunctionType) {
+    const enclosingFunctionType = this.currentFunctionType;
+    this.currentFunctionType = functionType;
     this.beginScope();
     for (const param of fun.params) {
-      this.declare(param.lexeme);
-      this.define(param.lexeme);
+      this.declare(param);
+      this.define(param);
     }
     this.resolve(fun.body);
     this.endScope();
+
+    this.currentFunctionType = enclosingFunctionType;
   }
 }

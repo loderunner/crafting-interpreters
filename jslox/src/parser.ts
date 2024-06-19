@@ -197,7 +197,7 @@ export default class Parser {
   }
 
   private parseReturnStatement(): Stmt {
-    const keyword = this.peek();
+    const keyword = this.previous();
     let expr: Expr | undefined = undefined;
     if (!this.check(TokenType.SEMICOLON)) {
       expr = this.parseExpression();

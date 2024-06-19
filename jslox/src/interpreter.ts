@@ -72,13 +72,13 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   constructor() {
     const clockCallable = {
       arity: 0,
-      call(_interpreter, _args) {
+      call(_interpreter: Interpreter, _args: Value[]) {
         return Date.now() / 1000.0;
       },
       toString() {
         return '<native fun>';
       },
-    } as Callable;
+    };
     this.globals.define('clock', clockCallable);
   }
 

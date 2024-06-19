@@ -74,6 +74,10 @@ function run(source: string) {
   const resolver = new Resolver(interpreter);
   resolver.resolve(stmts);
 
+  if (hadError) {
+    return;
+  }
+
   interpreter.interpret(stmts);
 }
 
