@@ -14,6 +14,7 @@ import { error } from './index.js';
 import { Interpreter } from './interpreter.js';
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunStmt,
   IfStmt,
@@ -61,6 +62,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.beginScope();
     this.resolve(block.stmts);
     this.endScope();
+  }
+
+  visitClass(stmt: ClassStmt): void {
+    this.declare(stmt.name);
+    this.define(stmt.name);
   }
 
   visitVar(stmt: VarStmt): void {

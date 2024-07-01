@@ -1,3 +1,4 @@
+import { Class, Instance } from './class.js';
 import { Environment } from './environment.js';
 import {
   BinaryExpr,
@@ -15,6 +16,7 @@ import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunStmt,
   IfStmt,
@@ -51,7 +53,8 @@ export interface Callable {
   call(interpreter: Interpreter, args: Value[]): Value;
   arity: number;
 }
-export type Value = null | boolean | number | string | Callable;
+
+export type Value = null | boolean | number | string | Callable | Instance;
 
 function isCallable(value: Value): value is Callable {
   return (
@@ -76,7 +79,7 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         return Date.now() / 1000.0;
       },
       toString() {
-        return '<native fun>';
+        return "<native fun 'clock'>";
       },
     };
     this.globals.define('clock', clockCallable);
@@ -134,6 +137,12 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     } finally {
       this.environment = previousEnv;
     }
+  }
+
+  visitClass(stmt: ClassStmt): void {
+    this.environment.define(stmt.name.lexeme, null);
+    const cls = new Class(stmt.name.lexeme);
+    this.environment.assign(stmt.name, cls);
   }
 
   visitPrint(stmt: PrintStmt): void {

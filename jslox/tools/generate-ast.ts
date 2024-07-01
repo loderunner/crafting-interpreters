@@ -31,6 +31,7 @@ await exprFile.close();
 const stmtBaseClass = 'Stmt';
 const stmtRules = [
   'Block      -> stmts: Stmt[]',
+  'Class      -> name: Token, methods: FunStmt[]',
   'Expression -> expr: Expr',
   'Fun        -> name: Token, params: Token[], body: Stmt[]',
   'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',

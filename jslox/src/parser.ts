@@ -12,6 +12,7 @@ import {
 import { error } from './index.js';
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunStmt,
   IfStmt,
@@ -69,6 +70,9 @@ export default class Parser {
   }
 
   private parseDeclaration(): Stmt {
+    if (this.match(TokenType.CLASS)) {
+      return this.parseClassDeclaration();
+    }
     if (this.match(TokenType.FUN)) {
       return this.parseFunctionDeclaration('function');
     }
@@ -78,7 +82,20 @@ export default class Parser {
     return this.parseStatement();
   }
 
-  private parseFunctionDeclaration(kind: 'function'): Stmt {
+  private parseClassDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, 'Expect class name.');
+    this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+    const methods: FunStmt[] = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.eof) {
+      methods.push(this.parseFunctionDeclaration('method'));
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+    return new ClassStmt(name, methods);
+  }
+
+  private parseFunctionDeclaration(kind: 'function' | 'method'): FunStmt {
     const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
     this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
     const params: Token[] = [];
