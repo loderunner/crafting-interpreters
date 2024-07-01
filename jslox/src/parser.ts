@@ -3,9 +3,11 @@ import {
   BinaryExpr,
   CallExpr,
   Expr,
+  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
+  SetExpr,
   UnaryExpr,
   VariableExpr,
 } from './expr.js';
@@ -262,6 +264,9 @@ export default class Parser {
       if (expr instanceof VariableExpr) {
         const name = expr.name;
         return new AssignExpr(name, value);
+      } else if (expr instanceof GetExpr) {
+        const { obj, name } = expr;
+        return new SetExpr(obj, name, value);
       }
 
       createError(equals, 'Invalid assignment target.');
@@ -353,8 +358,18 @@ export default class Parser {
   private parseCall(): Expr {
     let expr = this.parsePrimary();
 
-    while (this.match(TokenType.LEFT_PAREN)) {
-      expr = this.finishCall(expr);
+    while (!this.eof) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const name = this.consume(
+          TokenType.IDENTIFIER,
+          "Expect property after '.'.",
+        );
+        expr = new GetExpr(expr, name);
+      } else {
+        break;
+      }
     }
 
     return expr;

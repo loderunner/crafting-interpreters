@@ -17,9 +17,11 @@ const exprRules = [
   'Assign   -> name: Token, value: Expr',
   'Binary   -> op: Token, left: Expr, right: Expr',
   'Call     -> callee: Expr, paren: Token, args: Expr[]',
+  'Get      -> obj: Expr, name: Token',
   'Grouping -> expr: Expr',
   'Literal  -> value: Literal',
   'Logical  -> op: Token, left: Expr, right: Expr',
+  'Set      -> obj: Expr, name: Token, value: Expr',
   'Unary    -> op: Token, right: Expr',
   'Variable -> name: Token',
 ];

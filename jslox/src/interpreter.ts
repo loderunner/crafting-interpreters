@@ -11,6 +11,8 @@ import {
   AssignExpr,
   LogicalExpr,
   CallExpr,
+  GetExpr,
+  SetExpr,
 } from './expr.js';
 import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
@@ -319,6 +321,26 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
     const args = expr.args.map((arg) => this.evaluate(arg));
     return callee.call(this, args);
+  }
+
+  visitGet(expr: GetExpr): Value {
+    const obj = this.evaluate(expr.obj);
+    if (obj instanceof Instance) {
+      return obj.get(expr.name);
+    }
+
+    throw new RuntimeError(expr.name, 'Only instances have properties.');
+  }
+
+  visitSet(expr: SetExpr): Value {
+    const obj = this.evaluate(expr.obj);
+    if (!(obj instanceof Instance)) {
+      throw new RuntimeError(expr.name, 'Only instances have properties.');
+    }
+
+    const value = this.evaluate(expr.value);
+    obj.set(expr.name, value);
+    return value;
   }
 
   resolve(expr: Expr, depth: number) {

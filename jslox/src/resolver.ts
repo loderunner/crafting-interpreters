@@ -4,9 +4,11 @@ import {
   CallExpr,
   Expr,
   ExprVisitor,
+  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
+  SetExpr,
   UnaryExpr,
   VariableExpr,
 } from './expr.js';
@@ -138,6 +140,15 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     for (const arg of expr.args) {
       this.resolveExpr(arg);
     }
+  }
+
+  visitGet(expr: GetExpr): void {
+    this.resolveExpr(expr.obj);
+  }
+
+  visitSet(expr: SetExpr): void {
+    this.resolveExpr(expr.obj);
+    this.resolveExpr(expr.value);
   }
 
   visitGrouping(expr: GroupingExpr): void {
