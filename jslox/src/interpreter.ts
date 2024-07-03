@@ -143,7 +143,13 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitClass(stmt: ClassStmt): void {
     this.environment.define(stmt.name.lexeme, null);
-    const cls = new Class(stmt.name.lexeme);
+
+    const methods = new Map<string, Fun>();
+    for (const m of stmt.methods) {
+      const f = new Fun(m, this.environment);
+      methods.set(m.name.lexeme, f);
+    }
+    const cls = new Class(stmt.name.lexeme, methods);
     this.environment.assign(stmt.name, cls);
   }
 

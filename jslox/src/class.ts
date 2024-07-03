@@ -1,8 +1,12 @@
+import { Fun } from './fun.js';
 import { Callable, Interpreter, RuntimeError, Value } from './interpreter.js';
 import { Token } from './token.js';
 
 export class Class implements Callable {
-  constructor(public readonly name: string) {}
+  constructor(
+    public readonly name: string,
+    private readonly methods: Map<string, Fun>,
+  ) {}
 
   call(_interpreter: Interpreter, _args: Value[]): Value {
     const instance = new Instance(this);
@@ -11,6 +15,10 @@ export class Class implements Callable {
 
   public get arity(): number {
     return 0;
+  }
+
+  public findMethod(name: string): Fun | undefined {
+    return this.methods.get(name);
   }
 
   public toString(): string {
@@ -28,6 +36,12 @@ export class Instance {
     if (field !== undefined) {
       return field;
     }
+
+    const method = this.cls.findMethod(name.lexeme);
+    if (method !== undefined) {
+      return method;
+    }
+
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);
   }
 

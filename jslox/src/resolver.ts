@@ -37,6 +37,7 @@ enum VarState {
 enum FunctionType {
   NONE,
   FUNCTION,
+  METHOD,
 }
 
 type Scope = Map<string, VarState>;
@@ -69,6 +70,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitClass(stmt: ClassStmt): void {
     this.declare(stmt.name);
     this.define(stmt.name);
+    for (const method of stmt.methods) {
+      this.resolveFun(method, FunctionType.METHOD);
+    }
   }
 
   visitVar(stmt: VarStmt): void {
