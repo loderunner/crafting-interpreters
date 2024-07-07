@@ -1,3 +1,4 @@
+import { Instance } from './class.js';
 import { Environment } from './environment.js';
 import { Callable, Interpreter, Value } from './interpreter.js';
 import { FunStmt } from './stmt.js';
@@ -27,6 +28,12 @@ export class Fun implements Callable {
       throw err;
     }
     return null;
+  }
+
+  public bind(instance: Instance): Fun {
+    const env = new Environment(this.closure);
+    env.define('this', instance);
+    return new Fun(this.declaration, env);
   }
 
   public toString(): string {

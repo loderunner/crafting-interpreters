@@ -8,6 +8,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  ThisExpr,
   UnaryExpr,
   VariableExpr,
 } from './expr.js';
@@ -411,6 +412,9 @@ export default class Parser {
       const expr = this.parseExpression();
       this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression");
       return new GroupingExpr(expr);
+    }
+    if (this.match(TokenType.THIS)) {
+      return new ThisExpr(this.previous());
     }
     if (this.match(TokenType.IDENTIFIER)) {
       return new VariableExpr(this.previous());

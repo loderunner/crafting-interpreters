@@ -9,6 +9,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  ThisExpr,
   UnaryExpr,
   VariableExpr,
 } from './expr.js';
@@ -35,9 +36,14 @@ enum VarState {
 }
 
 enum FunctionType {
-  NONE,
-  FUNCTION,
-  METHOD,
+  None,
+  Function,
+  Method,
+}
+
+enum ClassType {
+  None,
+  Class,
 }
 
 type Scope = Map<string, VarState>;
@@ -51,7 +57,8 @@ class Scopes extends Array<Scope> {
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly scopes = new Scopes();
-  private currentFunctionType = FunctionType.NONE;
+  private currentFunctionType = FunctionType.None;
+  private currentClassType = ClassType.None;
 
   constructor(private readonly interpreter: Interpreter) {}
 
@@ -68,11 +75,22 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitClass(stmt: ClassStmt): void {
+    const enclosingClassType = this.currentClassType;
+    this.currentClassType = ClassType.Class;
+
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    const scope = this.beginScope();
+    scope.set('this', VarState.Defined);
+
     for (const method of stmt.methods) {
-      this.resolveFun(method, FunctionType.METHOD);
+      this.resolveFun(method, FunctionType.Method);
     }
+
+    this.endScope();
+
+    this.currentClassType = enclosingClassType;
   }
 
   visitVar(stmt: VarStmt): void {
@@ -100,7 +118,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitFun(stmt: FunStmt): void {
     this.declare(stmt.name);
     this.define(stmt.name);
-    this.resolveFun(stmt, FunctionType.FUNCTION);
+    this.resolveFun(stmt, FunctionType.Function);
   }
 
   visitExpression(stmt: ExpressionStmt): void {
@@ -120,7 +138,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturn(stmt: ReturnStmt): void {
-    if (this.currentFunctionType === FunctionType.NONE) {
+    if (this.currentFunctionType === FunctionType.None) {
       error(stmt.keyword, "Can't return from top-level code.");
     }
 
@@ -155,6 +173,14 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.resolveExpr(expr.value);
   }
 
+  visitThis(expr: ThisExpr): void {
+    if (this.currentClassType === ClassType.None) {
+      error(expr.keyword, "Can't use 'this' outside of a class.");
+      return;
+    }
+    this.resolveLocal(expr, expr.keyword.lexeme);
+  }
+
   visitGrouping(expr: GroupingExpr): void {
     this.resolveExpr(expr.expr);
   }
@@ -171,7 +197,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitLiteral(_expr: LiteralExpr): void {}
 
   private beginScope() {
-    this.scopes.push(new Scope());
+    const scope = new Scope();
+    this.scopes.push(scope);
+    return scope;
   }
 
   private endScope() {

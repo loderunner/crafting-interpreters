@@ -13,6 +13,7 @@ import {
   CallExpr,
   GetExpr,
   SetExpr,
+  ThisExpr,
 } from './expr.js';
 import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
@@ -196,12 +197,7 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitVariable(expr: VariableExpr): Value {
-    const depth = this.locals.get(expr);
-    if (depth !== undefined) {
-      return this.environment.getAt(expr.name, depth);
-    } else {
-      return this.globals.get(expr.name);
-    }
+    return this.lookupVariable(expr.name, expr);
   }
 
   visitBinary(expr: BinaryExpr): Value {
@@ -349,8 +345,21 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return value;
   }
 
+  visitThis(expr: ThisExpr): Value {
+    return this.lookupVariable(expr.keyword, expr);
+  }
+
   resolve(expr: Expr, depth: number) {
     this.locals.set(expr, depth);
+  }
+
+  private lookupVariable(name: Token, expr: Expr) {
+    const depth = this.locals.get(expr);
+    if (depth !== undefined) {
+      return this.environment.getAt(name, depth);
+    } else {
+      return this.globals.get(name);
+    }
   }
 }
 

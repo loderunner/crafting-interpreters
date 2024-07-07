@@ -39,7 +39,7 @@ export class Instance {
 
     const method = this.cls.findMethod(name.lexeme);
     if (method !== undefined) {
-      return method;
+      return method.bind(this);
     }
 
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);
