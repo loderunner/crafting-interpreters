@@ -39,6 +39,7 @@ enum FunctionType {
   None,
   Function,
   Method,
+  Initializer,
 }
 
 enum ClassType {
@@ -85,7 +86,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     scope.set('this', VarState.Defined);
 
     for (const method of stmt.methods) {
-      this.resolveFun(method, FunctionType.Method);
+      this.resolveFun(
+        method,
+        method.name.lexeme === 'init'
+          ? FunctionType.Initializer
+          : FunctionType.Method,
+      );
     }
 
     this.endScope();
@@ -143,6 +149,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
 
     if (stmt.value !== undefined) {
+      if (this.currentFunctionType === FunctionType.Initializer) {
+        error(stmt.keyword, "Can't return a value from an initializer.");
+      }
       this.resolveExpr(stmt.value);
     }
   }

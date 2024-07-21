@@ -1,5 +1,5 @@
 import { Class, Instance } from './class.js';
-import { Environment } from './environment.js';
+import { Environment, NameError } from './environment.js';
 import {
   BinaryExpr,
   Expr,
@@ -111,7 +111,7 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitFun(stmt: FunStmt): void {
-    const fun = new Fun(stmt, this.environment);
+    const fun = new Fun(stmt, this.environment, false);
     this.environment.define(stmt.name.lexeme, fun);
   }
 
@@ -147,11 +147,19 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     const methods = new Map<string, Fun>();
     for (const m of stmt.methods) {
-      const f = new Fun(m, this.environment);
+      const f = new Fun(m, this.environment, m.name.lexeme === 'init');
       methods.set(m.name.lexeme, f);
     }
     const cls = new Class(stmt.name.lexeme, methods);
-    this.environment.assign(stmt.name, cls);
+
+    try {
+      this.environment.assignAt(stmt.name.lexeme, cls, 0);
+    } catch (err) {
+      if (err instanceof NameError) {
+        throw new RuntimeError(stmt.name, err.message);
+      }
+      throw err;
+    }
   }
 
   visitPrint(stmt: PrintStmt): void {
@@ -188,10 +196,17 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   visitAssign(expr: AssignExpr): Value {
     const value = this.evaluate(expr.value);
     const depth = this.locals.get(expr);
-    if (depth !== undefined) {
-      this.environment.assignAt(expr.name, value, depth);
-    } else {
-      this.globals.assign(expr.name, value);
+    try {
+      if (depth !== undefined) {
+        this.environment.assignAt(expr.name.lexeme, value, depth);
+      } else {
+        this.globals.assignAt(expr.name.lexeme, value, 0);
+      }
+    } catch (err) {
+      if (err instanceof NameError) {
+        throw new RuntimeError(expr.name, err.message);
+      }
+      throw err;
     }
     return value;
   }
@@ -355,10 +370,17 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private lookupVariable(name: Token, expr: Expr) {
     const depth = this.locals.get(expr);
-    if (depth !== undefined) {
-      return this.environment.getAt(name, depth);
-    } else {
-      return this.globals.get(name);
+    try {
+      if (depth !== undefined) {
+        return this.environment.getAt(name.lexeme, depth);
+      } else {
+        return this.globals.getAt(name.lexeme, 0);
+      }
+    } catch (err) {
+      if (err instanceof NameError) {
+        throw new RuntimeError(name, err.message);
+      }
+      throw err;
     }
   }
 }

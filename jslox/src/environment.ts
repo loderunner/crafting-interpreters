@@ -1,5 +1,14 @@
-import { RuntimeError, Value } from './interpreter.js';
-import { Token } from './token.js';
+import { Value } from './interpreter.js';
+
+export class NameError extends Error {
+  constructor(
+    public readonly name: string,
+    message?: string,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+  }
+}
 
 export class Environment {
   private readonly values = new Map<string, Value>();
@@ -19,51 +28,19 @@ export class Environment {
     return env;
   }
 
-  get(name: Token): Value {
-    const value = this.values.get(name.lexeme);
-
-    if (value === undefined) {
-      if (this.enclosing !== undefined) {
-        return this.enclosing.get(name);
-      }
-      throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-    }
-    return value;
-  }
-
-  getAt(name: Token, depth: number): Value {
+  getAt(name: string, depth: number): Value {
     const ancestor = this.ancestor(depth);
     if (ancestor === undefined) {
-      throw new RuntimeError(
-        name,
-        "Couldn't resolve variable '" + name.lexeme + "'.",
-      );
+      throw new NameError(name, `Couldn't resolve variable '${name}'.`);
     }
-    return ancestor.values.get(name.lexeme) as Value;
+    return ancestor.values.get(name) as Value;
   }
 
-  assign(name: Token, value: Value) {
-    if (this.values.has(name.lexeme)) {
-      this.values.set(name.lexeme, value);
-      return;
-    }
-
-    if (this.enclosing !== undefined) {
-      this.enclosing.assign(name, value);
-      return;
-    }
-
-    throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-  }
-
-  assignAt(name: Token, value: Value, depth: number) {
+  assignAt(name: string, value: Value, depth: number) {
     const ancestor = this.ancestor(depth);
     if (ancestor === undefined) {
-      throw new RuntimeError(
-        name,
-        "Couldn't resolve variable '" + name.lexeme + "'.",
-      );
+      throw new NameError(name, `Couldn't resolve variable '${name}'.`);
     }
-    ancestor.values.set(name.lexeme, value);
+    ancestor.values.set(name, value);
   }
 }
