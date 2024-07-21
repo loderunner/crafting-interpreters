@@ -8,12 +8,20 @@ export class Class implements Callable {
     private readonly methods: Map<string, Fun>,
   ) {}
 
-  call(_interpreter: Interpreter, _args: Value[]): Value {
+  call(interpreter: Interpreter, args: Value[]): Value {
     const instance = new Instance(this);
+    const initializer = this.findMethod('init');
+    if (initializer !== undefined) {
+      initializer.bind(instance).call(interpreter, args);
+    }
     return instance;
   }
 
   public get arity(): number {
+    const initializer = this.findMethod('init');
+    if (initializer !== undefined) {
+      return initializer.arity;
+    }
     return 0;
   }
 
