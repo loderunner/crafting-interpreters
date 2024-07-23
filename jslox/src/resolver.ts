@@ -46,6 +46,7 @@ enum FunctionType {
 enum ClassType {
   None,
   Class,
+  Subclass,
 }
 
 type Scope = Map<string, VarState>;
@@ -87,6 +88,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       if (stmt.name.lexeme === stmt.superclass.name.lexeme) {
         error(stmt.superclass.name, "A class can't inherit from itself.");
       }
+      this.currentClassType = ClassType.Subclass;
       this.resolveExpr(stmt.superclass);
 
       this.beginScope();
@@ -198,6 +200,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitSuper(expr: SuperExpr): void {
+    if (this.currentClassType === ClassType.None) {
+      error(expr.keyword, "Can't use 'super' outside of a class.");
+    } else if (this.currentClassType !== ClassType.Subclass) {
+      error(expr.keyword, "Can't use 'super' in a class with no superclass.");
+    }
     this.resolveLocal(expr, expr.keyword.lexeme);
   }
 
