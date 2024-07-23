@@ -9,6 +9,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  SuperExpr,
   ThisExpr,
   UnaryExpr,
   VariableExpr,
@@ -87,6 +88,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
         error(stmt.superclass.name, "A class can't inherit from itself.");
       }
       this.resolveExpr(stmt.superclass);
+
+      this.beginScope();
+      this.scopes.top?.set('super', VarState.Defined);
     }
 
     const scope = this.beginScope();
@@ -102,6 +106,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
 
     this.endScope();
+
+    if (stmt.superclass !== undefined) {
+      this.endScope();
+    }
 
     this.currentClassType = enclosingClassType;
   }
@@ -187,6 +195,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSet(expr: SetExpr): void {
     this.resolveExpr(expr.obj);
     this.resolveExpr(expr.value);
+  }
+
+  visitSuper(expr: SuperExpr): void {
+    this.resolveLocal(expr, expr.keyword.lexeme);
   }
 
   visitThis(expr: ThisExpr): void {

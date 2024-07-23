@@ -22,6 +22,7 @@ const exprRules = [
   'Literal  -> value: Literal',
   'Logical  -> op: Token, left: Expr, right: Expr',
   'Set      -> obj: Expr, name: Token, value: Expr',
+  'Super    -> keyword: Token, method: Token',
   'This     -> keyword: Token',
   'Unary    -> op: Token, right: Expr',
   'Variable -> name: Token',

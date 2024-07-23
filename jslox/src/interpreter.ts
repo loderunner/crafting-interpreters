@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import { Class, Instance } from './class.js';
 import { Environment, NameError } from './environment.js';
 import {
@@ -14,6 +15,7 @@ import {
   GetExpr,
   SetExpr,
   ThisExpr,
+  SuperExpr,
 } from './expr.js';
 import { Fun, Return } from './fun.js';
 import { runtimeError } from './index.js';
@@ -153,14 +155,27 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         );
       }
     }
+
     this.environment.define(stmt.name.lexeme, null);
+
+    let enclosing: Environment | undefined = undefined;
+    if (superclass !== undefined) {
+      enclosing = this.environment;
+      this.environment = new Environment(this.environment);
+      this.environment.define('super', superclass);
+    }
 
     const methods = new Map<string, Fun>();
     for (const m of stmt.methods) {
       const f = new Fun(m, this.environment, m.name.lexeme === 'init');
       methods.set(m.name.lexeme, f);
     }
+
     const cls = new Class(stmt.name.lexeme, methods, superclass);
+
+    if (enclosing !== undefined) {
+      this.environment = enclosing;
+    }
 
     try {
       this.environment.assignAt(stmt.name.lexeme, cls, 0);
@@ -368,6 +383,27 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     const value = this.evaluate(expr.value);
     obj.set(expr.name, value);
     return value;
+  }
+
+  visitSuper(expr: SuperExpr): Value {
+    const depth = this.locals.get(expr);
+    assert(typeof depth === 'number');
+
+    const superclass = this.environment.getAt('super', depth);
+    assert(superclass instanceof Class);
+
+    const instance = this.environment.getAt('this', depth - 1);
+    assert(instance instanceof Instance);
+
+    const method = superclass.findMethod(expr.method.lexeme);
+    if (method === undefined) {
+      throw new RuntimeError(
+        expr.method,
+        `Undefined property '${expr.method.lexeme}'.`,
+      );
+    }
+
+    return method.bind(instance);
   }
 
   visitThis(expr: ThisExpr): Value {
