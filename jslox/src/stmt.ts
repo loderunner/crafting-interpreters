@@ -1,5 +1,5 @@
 import { Token } from './token.js';
-import { Expr } from './expr.js';
+import { Expr, VariableExpr } from './expr.js';
 
 export interface StmtVisitor<R> {
   visitBlock(stmt: BlockStmt): R;
@@ -33,6 +33,7 @@ export class ClassStmt extends Stmt {
   constructor(
     public readonly name: Token,
     public readonly methods: FunStmt[],
+    public readonly superclass?: VariableExpr,
   ) {
     super();
   }

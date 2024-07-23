@@ -6,6 +6,7 @@ export class Class implements Callable {
   constructor(
     public readonly name: string,
     private readonly methods: Map<string, Fun>,
+    private readonly superclass?: Class,
   ) {}
 
   call(interpreter: Interpreter, args: Value[]): Value {
@@ -26,7 +27,12 @@ export class Class implements Callable {
   }
 
   public findMethod(name: string): Fun | undefined {
-    return this.methods.get(name);
+    if (this.methods.has(name)) {
+      return this.methods.get(name);
+    }
+    if (this.superclass !== undefined) {
+      return this.superclass.findMethod(name);
+    }
   }
 
   public toString(): string {

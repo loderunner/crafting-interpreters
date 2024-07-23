@@ -143,6 +143,16 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitClass(stmt: ClassStmt): void {
+    let superclass: Value | undefined = undefined;
+    if (stmt.superclass !== undefined) {
+      superclass = this.evaluate(stmt.superclass);
+      if (!(superclass instanceof Class)) {
+        throw new RuntimeError(
+          stmt.superclass.name,
+          'Superclass must be a class.',
+        );
+      }
+    }
     this.environment.define(stmt.name.lexeme, null);
 
     const methods = new Map<string, Fun>();
@@ -150,7 +160,7 @@ export class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       const f = new Fun(m, this.environment, m.name.lexeme === 'init');
       methods.set(m.name.lexeme, f);
     }
-    const cls = new Class(stmt.name.lexeme, methods);
+    const cls = new Class(stmt.name.lexeme, methods, superclass);
 
     try {
       this.environment.assignAt(stmt.name.lexeme, cls, 0);

@@ -34,7 +34,7 @@ await exprFile.close();
 const stmtBaseClass = 'Stmt';
 const stmtRules = [
   'Block      -> stmts: Stmt[]',
-  'Class      -> name: Token, methods: FunStmt[]',
+  'Class      -> name: Token, methods: FunStmt[], superclass?: VariableExpr',
   'Expression -> expr: Expr',
   'Fun        -> name: Token, params: Token[], body: Stmt[]',
   'If         -> condition: Expr, thenBranch: Stmt, elseBranch?: Stmt',
@@ -46,7 +46,7 @@ const stmtRules = [
 const stmtFile = await fs.open(`${outDir}/stmt.ts`, 'w');
 const stmtImports = [
   "import { Token } from './token.js'",
-  "import { Expr } from './expr.js'",
+  "import { Expr, VariableExpr } from './expr.js'",
 ];
 await generateAST(stmtFile, stmtImports, stmtBaseClass, stmtRules);
 await exprFile.close();
