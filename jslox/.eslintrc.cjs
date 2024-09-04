@@ -5,7 +5,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:n/recommended',
     'prettier',
   ],
   ignorePatterns: ['.eslintrc.cjs', 'src/expr.ts'],
@@ -24,8 +23,5 @@ module.exports = {
         ignoreRestSiblings: true,
       },
     ],
-    'n/hashbang': 'off',
-    'n/no-process-exit': 'off',
-    'n/no-unsupported-features/node-builtins': 'off',
   },
 };
