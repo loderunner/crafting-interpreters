@@ -4,8 +4,9 @@
   "description": "",
   "scripts": {
     "lint": "prettier --check . && eslint --max-warnings=0 .",
-    "start": "SWCRC=true node --import @swc-node/register/esm-register src/index.ts",
+    "dev": "SWCRC=true node --import @swc-node/register/esm-register src/index.ts",
     "build": "tsc",
+    "start": "build/index.js",
     "generate-ast": "SWRC=true node --import @swc-node/register/esm-register tools/generate-ast.ts"
   },
   "bin": {
@@ -18,7 +19,7 @@
     "@swc-node/register": "^1.9.1",
     "@swc/cli": "^0.3.12",
     "@swc/core": "^1.5.7",
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.10.7",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",
     "eslint": "^8.57.0",
