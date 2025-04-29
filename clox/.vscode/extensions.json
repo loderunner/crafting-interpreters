@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.cpptools",
+    "ms-vscode.makefile-tools",
+    "vadimcn.vscode-lldb"
+  ]
+}
