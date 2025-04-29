@@ -1,23 +1,16 @@
-#include <stdio.h>
-
-#include "strlist.h"
-
-void print_list(strlist* l) {
-  size_t len = strlist_len(l);
-  for (size_t i = 0; i < len; i++) {
-    printf("%s\n", strlist_get(l, i));
-  }
-}
+#include "common.h"
+#include "chunk.h"
+#include "debug.h"
 
 int main(void) {
-  strlist* l = strlist_new();
-  strlist_insert(l, 0, "Hello");
-  strlist_insert(l, 1, "World");
-  strlist_insert(l, 2, "!");
+  Chunk chunk;
 
-  print_list(l);
+  chunk_init(&chunk);
+  chunk_write(&chunk, OP_RETURN);
 
-  strlist_free(l);
+  disassemble_chunk(&chunk, "test chunk");
+
+  chunk_free(&chunk);
 
   return 0;
 }

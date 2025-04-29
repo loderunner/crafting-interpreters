@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "check.h"
-#include "./test_strlist.h"
 
 #include "dmalloc.h"
 

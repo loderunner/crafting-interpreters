@@ -6,32 +6,26 @@
   "configurations": [
     {
       "name": "Debug clox",
-      "type": "cppdbg",
+      "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/clox",
+      "console": "internalConsole",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "environment": [],
-      "stopAtEntry": false,
-      "externalConsole": false,
-      "MIMode": "lldb",
       "preLaunchTask": "Make clox"
     },
     {
       "name": "Debug clox tests",
-      "type": "cppdbg",
+      "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/tests/check",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "environment": [
-        { "name": "CK_FORK", "value": "no" }
-        // { "name": "CK_RUN_SUITE", "value": "" },
-        // { "name": "CK_RUN_CASE", "value": "" }
-      ],
-      "stopAtEntry": false,
-      "externalConsole": false,
-      "MIMode": "lldb",
+      "env": {
+        "CK_FORK": "no"
+        // "CK_RUN_SUITE": "",
+        // "CK_RUN_CASE": "",
+      },
       "preLaunchTask": "Make check"
     }
   ]
