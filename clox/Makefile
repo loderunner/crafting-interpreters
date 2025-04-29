@@ -45,11 +45,11 @@ $(BUILDDIR):
 
 # Rule to compile source files to object files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile $(BUILDDIR)
-	@$(CC) $(CFLAGS) -I$(INCLUDEDIR) -c -o $@ $
+	@$(CC) $(CFLAGS) -I$(INCLUDEDIR) -c -o $@ $<
 
 # Rule to compile test files to object files
 $(TESTDIR)/%.o: $(TESTDIR)/%.c Makefile
-	@$(CC) $(TESTCFLAGS) -I$(INCLUDEDIR) -c -o $@ $
+	@$(CC) $(TESTCFLAGS) -I$(INCLUDEDIR) -c -o $@ $<
 
 # Rule to build the test executable
 $(CHECK): $(TESTOBJFILES) $(OBJFILES)
@@ -57,4 +57,4 @@ $(CHECK): $(TESTOBJFILES) $(OBJFILES)
 
 # Run tests
 check: $(CHECK)
-	@./tests/check
+	@CK_TAP_LOG_FILE_NAME=- ./tests/check

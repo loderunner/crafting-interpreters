@@ -30,12 +30,12 @@ void strlist_free(strlist *l) {
   free(l);
 }
 
-unsigned int strlist_len(strlist *l) {
+size_t strlist_len(strlist *l) {
   if (*l == 0) {
     return 0;
   }
 
-  unsigned int i;
+  size_t i;
   strlist_node *n = *l;
   for (i = 0; n != 0; i++) {
     n = n->next;
@@ -44,8 +44,8 @@ unsigned int strlist_len(strlist *l) {
   return i;
 }
 
-const char *strlist_get(strlist *l, int index) {
-  int i;
+const char *strlist_get(strlist *l, size_t index) {
+  size_t i;
   strlist_node *n = *l;
   for (i = 0; i < index; i++) {
     n = n->next;
@@ -54,7 +54,7 @@ const char *strlist_get(strlist *l, int index) {
   return n->str;
 }
 
-void strlist_insert(strlist *l, int index, const char *str) {
+void strlist_insert(strlist *l, size_t index, const char *str) {
   strlist_node *item = malloc(sizeof(strlist_node));
 
   size_t len = strlen(str) + 1;
@@ -70,7 +70,7 @@ void strlist_insert(strlist *l, int index, const char *str) {
     return;
   }
 
-  int i;
+  size_t i;
   strlist_node *before = *l;
   for (i = 1; i < index; i++) {
     before = before->next;
@@ -87,7 +87,7 @@ void strlist_insert(strlist *l, int index, const char *str) {
   }
 }
 
-void strlist_remove(strlist *l, int index) {
+void strlist_remove(strlist *l, size_t index) {
   if (index == 0) {
     strlist_node *n = *l;
 
@@ -102,7 +102,7 @@ void strlist_remove(strlist *l, int index) {
     return;
   }
 
-  int i;
+  size_t i;
   strlist_node *item = *l;
   for (i = 0; i < index; i++) {
     item = item->next;

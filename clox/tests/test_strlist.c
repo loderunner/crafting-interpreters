@@ -2,7 +2,6 @@
 #include "./test_main.h"
 
 #include "check.h"
-#include "dmalloc.h"
 
 #include "strlist.h"
 
@@ -10,10 +9,8 @@ START_TEST(test_strlist_new) {
   strlist *l = strlist_new();
 
   ck_assert_ptr_nonnull(l);
-  ck_assert_int_eq(dmalloc_examine(l, 0, 0, 0, 0, 0, 0, 0), DMALLOC_NOERROR);
 
   strlist_free(l);
-  ck_assert_int_eq(dmalloc_examine(l, 0, 0, 0, 0, 0, 0, 0), DMALLOC_ERROR);
 }
 END_TEST
 

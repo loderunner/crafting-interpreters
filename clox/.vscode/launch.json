@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug clox",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/clox",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "Make clox"
+    },
+    {
+      "name": "Debug clox tests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/check",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        { "name": "CK_FORK", "value": "no" }
+        // { "name": "CK_RUN_SUITE", "value": "" },
+        // { "name": "CK_RUN_CASE", "value": "" }
+      ],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "Make check"
+    }
+  ]
+}

@@ -3,8 +3,8 @@
 #include "strlist.h"
 
 void print_list(strlist* l) {
-  int len = strlist_len(l);
-  for (int i = 0; i < len; i++) {
+  size_t len = strlist_len(l);
+  for (size_t i = 0; i < len; i++) {
     printf("%s\n", strlist_get(l, i));
   }
 }

@@ -13,14 +13,13 @@
       },
       "command": "/usr/bin/make",
       "options": {
-        "cwd": "${workspaceFolder}/clox",
         "env": {
           "CFLAGS": "-fcolor-diagnostics -fansi-escape-codes -g"
         }
       },
       "problemMatcher": {
         "base": "$gcc",
-        "fileLocation": ["relative", "${workspaceFolder}/clox"]
+        "fileLocation": ["relative", "${workspaceFolder}"]
       },
       "group": {
         "kind": "build",
@@ -41,14 +40,13 @@
       "command": "/usr/bin/make",
       "args": ["tests/check"],
       "options": {
-        "cwd": "${workspaceFolder}/clox",
         "env": {
           "CFLAGS": "-fcolor-diagnostics -fansi-escape-codes -g"
         }
       },
       "problemMatcher": {
         "base": "$gcc",
-        "fileLocation": ["relative", "${workspaceFolder}/clox"]
+        "fileLocation": ["relative", "${workspaceFolder}"]
       },
       "group": {
         "kind": "test",
@@ -69,7 +67,7 @@
       "command": "/usr/bin/make",
       "args": ["clean"],
       "options": {
-        "cwd": "${workspaceFolder}/clox"
+        "cwd": "${workspaceFolder}"
       },
       "group": {
         "kind": "build",
