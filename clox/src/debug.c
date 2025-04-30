@@ -28,6 +28,12 @@ static size_t constant_instruction(const char* name, Chunk* chunk,
 size_t disassemble_instruction(Chunk* chunk, size_t offset) {
   printf("%04lu ", offset);
 
+  if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+    printf("   | ");
+  } else {
+    printf("%4lu ", chunk->lines[offset]);
+  }
+
   uint8_t instruction = chunk->code[offset];
   switch (instruction) {
     case OP_CONSTANT:
