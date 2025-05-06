@@ -1,5 +1,9 @@
+#include <stdio.h>
+
 #include "memory.h"
 #include "value.h"
+
+void value_print(Value value) { printf("%g", value); }
 
 void valuearray_init(ValueArray* array) {
   array->capacity = 0;

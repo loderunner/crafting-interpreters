@@ -14,6 +14,7 @@
     "*.css": "tailwindcss",
     "CODEOWNERS": "codeowners",
     "LICENSE": "plaintext",
-    "strlist.h": "c"
+    "strlist.h": "c",
+    "chunk.h": "c"
   }
 }

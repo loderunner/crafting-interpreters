@@ -5,6 +5,8 @@
 
 typedef double Value;
 
+void value_print(Value value);
+
 typedef struct {
   size_t count;
   size_t capacity;
