@@ -9,7 +9,7 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/clox",
-      "console": "internalConsole",
+      "console": "integratedTerminal",
       "args": [],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "Make clox"
