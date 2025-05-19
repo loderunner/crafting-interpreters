@@ -3,7 +3,19 @@
 #include "memory.h"
 #include "value.h"
 
-void value_print(Value value) { printf("%g", value); }
+void value_print(Value value) {
+  switch (value.type) {
+    case VAL_NIL:
+      printf("nil");
+      break;
+    case VAL_BOOL:
+      printf(AS_BOOL(value) ? "true" : "false");
+      break;
+    case VAL_NUMBER:
+      printf("%g", AS_NUMBER(value));
+      break;
+  }
+}
 
 void valuearray_init(ValueArray* array) {
   array->capacity = 0;

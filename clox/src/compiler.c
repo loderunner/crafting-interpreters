@@ -127,12 +127,13 @@ static void emit_constant(Value value) {
 
 /* ---- Parse Rules Table ---- */
 
+static void parse_precedence(Precedence prec);
+static void expression(void);
 static void grouping(void);
+static void literal(void);
 static void unary(void);
 static void binary(void);
 static void number(void);
-static void expression(void);
-static void parse_precedence(Precedence prec);
 
 // Table defining parse rules for each token type
 static ParseRule rules[] = {
@@ -161,17 +162,17 @@ static ParseRule rules[] = {
     [TOKEN_AND] = {NULL, NULL, PREC_NONE},
     [TOKEN_CLASS] = {NULL, NULL, PREC_NONE},
     [TOKEN_ELSE] = {NULL, NULL, PREC_NONE},
-    [TOKEN_FALSE] = {NULL, NULL, PREC_NONE},
+    [TOKEN_FALSE] = {literal, NULL, PREC_NONE},
     [TOKEN_FOR] = {NULL, NULL, PREC_NONE},
     [TOKEN_FUN] = {NULL, NULL, PREC_NONE},
     [TOKEN_IF] = {NULL, NULL, PREC_NONE},
-    [TOKEN_NIL] = {NULL, NULL, PREC_NONE},
+    [TOKEN_NIL] = {literal, NULL, PREC_NONE},
     [TOKEN_OR] = {NULL, NULL, PREC_NONE},
     [TOKEN_PRINT] = {NULL, NULL, PREC_NONE},
     [TOKEN_SUPER] = {NULL, NULL, PREC_NONE},
     [TOKEN_RETURN] = {NULL, NULL, PREC_NONE},
     [TOKEN_THIS] = {NULL, NULL, PREC_NONE},
-    [TOKEN_TRUE] = {NULL, NULL, PREC_NONE},
+    [TOKEN_TRUE] = {literal, NULL, PREC_NONE},
     [TOKEN_VAR] = {NULL, NULL, PREC_NONE},
     [TOKEN_WHILE] = {NULL, NULL, PREC_NONE},
     [TOKEN_ERROR] = {NULL, NULL, PREC_NONE},
@@ -201,16 +202,27 @@ static void parse_precedence(Precedence prec) {
 
 static void expression(void) { parse_precedence(PREC_ASSIGN); }
 
-/* ---- Expression Parsers ---- */
-
-static void number(void) {
-  double value = strtod(parser.previous.start, NULL);
-  emit_constant(value);
-}
-
 static void grouping(void) {
   expression();
   consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
+}
+
+static void literal(void) {
+  TokenType type = parser.previous.type;
+
+  switch (type) {
+    case TOKEN_NIL:
+      emit_byte(OP_NIL);
+      return;
+    case TOKEN_FALSE:
+      emit_byte(OP_FALSE);
+      return;
+    case TOKEN_TRUE:
+      emit_byte(OP_TRUE);
+      return;
+    default:
+      return;  // unreachable
+  }
 }
 
 static void unary(void) {
@@ -251,6 +263,11 @@ static void binary(void) {
     default:
       return;  // unreachable
   }
+}
+
+static void number(void) {
+  double value = strtod(parser.previous.start, NULL);
+  emit_constant(NUMBER_VALUE(value));
 }
 
 /* ---- Compiler Interface ---- */
